@@ -1,27 +1,8 @@
 """
 core/word_to_pdf.py — Word → PDF Dönüşüm Motoru
 
-ÖĞRENME NOTU — docx2pdf:
-
-  docx2pdf, Microsoft Word'ü (COM arayüzü üzerinden) kullanarak
-  .docx / .doc dosyalarını PDF'e dönüştürür.
-
-  KISIT: Windows'ta Microsoft Word kurulu olması ZORUNLUDUR.
-  macOS'ta LibreOffice veya Word for Mac desteklenir.
-  Linux'ta doğrudan çalışmaz (LibreOffice sarmalayıcı gerekir).
-
-  Temel kullanım:
-    docx2pdf.convert(input_path, output_path)
-      input_path  → .docx dosyasının tam yolu (str veya Path)
-      output_path → oluşturulacak PDF'in tam yolu (str veya Path)
-
-  Hata durumları:
-    - Word kurulu değilse → genellikle COM hatası veya OSError
-    - Dosya bozuksa       → çeşitli Exception türleri
-    - Dosya kilitliyse    → PermissionError
-
-Bu fonksiyon UI'dan tamamen bağımsız!
-UI bilmez, Qt bilmez. Sadece dosya yolları alır, PDF üretir.
+Converts .docx / .doc files to PDF using Microsoft Word via the docx2pdf library.
+Requires Microsoft Word on Windows or macOS.
 """
 
 import sys
@@ -29,57 +10,96 @@ from pathlib import Path
 from typing import Callable
 
 
+WORD_EXTENSIONS: frozenset[str] = frozenset({".docx", ".doc"})
+
+
+def _get_unique_output_path(output_folder: Path, source: Path) -> Path:
+    """Build a PDF output path without overwriting an existing file."""
+    candidate = output_folder / f"{source.stem}.pdf"
+    counter = 1
+    while candidate.exists():
+        candidate = output_folder / f"{source.stem}_{counter}.pdf"
+        counter += 1
+    return candidate
+
+
+def _raise_conversion_error(source: Path, exc: Exception) -> None:
+    """Translate common Word/COM failures into user-facing exceptions."""
+    error_msg = str(exc)
+    lowered = error_msg.lower()
+
+    if (
+        isinstance(exc, PermissionError)
+        or "access is denied" in lowered
+        or "permission denied" in lowered
+    ):
+        raise PermissionError(
+            f"'{source.name}' dosyasına erişilemiyor. "
+            "Dosya başka bir program tarafından açık olabilir. "
+            "Lütfen dosyayı kapatıp tekrar deneyin.\n\n"
+            f"Teknik detay: {error_msg}"
+        ) from exc
+
+    if any(
+        token in lowered
+        for token in ("word", "com_error", "comtypes", "class not registered")
+    ):
+        raise RuntimeError(
+            "Microsoft Word bulunamadı veya başlatılamadı.\n"
+            "Word → PDF dönüşümü için Microsoft Word kurulu olmalıdır.\n\n"
+            f"Teknik detay: {error_msg}"
+        ) from exc
+
+    raise RuntimeError(
+        f"'{source.name}' dönüştürülürken beklenmedik bir hata oluştu:\n{error_msg}"
+    ) from exc
+
+
 def convert_word_to_pdf(
-    input_path: str,
+    input_paths: list[str],
     output_dir: str,
     progress_callback: Callable[[int], None] | None = None,
     status_callback: Callable[[str], None] | None = None,
+    cancel_check: Callable[[], bool] | None = None,
 ) -> str:
     """
-    Verilen Word dosyasını PDF'e dönüştürür.
+    Converts a list of Word documents to PDF.
 
-    Parametreler:
-        input_path       : Dönüştürülecek .docx / .doc dosyasının tam yolu
-        output_dir       : PDF'in kaydedileceği klasörün tam yolu
-        progress_callback: İlerleme güncellemesi için çağrılır (0-100)
-        status_callback  : Durum metni için çağrılır
+    Args:
+        input_paths:       List of full paths to the .docx / .doc files.
+        output_dir:        Directory where the resulting PDFs will be saved.
+        progress_callback: Called with an integer (0-100) to report progress.
+        status_callback:   Called with a status string for UI feedback.
 
-    Döndürür:
-        str: Oluşturulan PDF'in tam yolu (başarısız olursa exception fırlatır)
+    Returns:
+        Full path of the generated output directory.
+
+    Raises:
+        FileNotFoundError: If any input file does not exist.
+        ValueError:        If any file extension is not supported.
+        EnvironmentError:  If the platform is not supported.
+        RuntimeError:      If conversion fails.
     """
-    # ── Ön Kontroller ────────────────────────────────────────────────────────
-    source = Path(input_path)
+    if not input_paths:
+        raise ValueError("Dönüştürülecek Word belgesi seçilmedi.")
 
-    if not source.exists():
-        raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+    sources = [Path(path) for path in input_paths]
+    for source in sources:
+        if not source.exists() or not source.is_file():
+            raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+        if source.suffix.lower() not in WORD_EXTENSIONS:
+            raise ValueError(
+                f"Desteklenmeyen dosya formatı: '{source.suffix}'. "
+                "Yalnızca .docx ve .doc dosyaları dönüştürülebilir."
+            )
 
-    if source.suffix.lower() not in (".docx", ".doc"):
-        raise ValueError(
-            f"Desteklenmeyen dosya formatı: '{source.suffix}'. "
-            "Yalnızca .docx ve .doc dosyaları dönüştürülebilir."
-        )
-
-    # ── Çıktı Yolunu Hazırla ─────────────────────────────────────────────────
-    output_folder = Path(output_dir)
-    output_folder.mkdir(parents=True, exist_ok=True)
-    output_path = output_folder / (source.stem + ".pdf")
-
-    # ── İlerleme: Başlangıç ──────────────────────────────────────────────────
-    if status_callback:
-        status_callback(f"Hazırlanıyor: {source.name}")
-    if progress_callback:
-        progress_callback(10)
-
-    # ── Platform Uyarısı ─────────────────────────────────────────────────────
     if sys.platform not in ("win32", "darwin"):
         raise EnvironmentError(
-            "docx2pdf yalnızca Windows ve macOS'ta çalışır. "
-            "Linux'ta Microsoft Word veya LibreOffice kurulu olmalıdır."
+            "Word → PDF dönüşümü yalnızca Microsoft Word kurulu Windows "
+            "ve macOS sistemlerinde desteklenir."
         )
 
-    # ── Dönüşüm ──────────────────────────────────────────────────────────────
     try:
-        # docx2pdf burada içe aktarılıyor: import hatası daha anlaşılır mesaj verir
         import docx2pdf  # noqa: PLC0415
     except ImportError:
         raise ImportError(
@@ -87,51 +107,40 @@ def convert_word_to_pdf(
             "Lütfen 'pip install docx2pdf' komutuyla yükleyin."
         )
 
-    if status_callback:
-        status_callback(f"Dönüştürülüyor: {source.name}")
+    output_folder = Path(output_dir)
+    output_folder.mkdir(parents=True, exist_ok=True)
+
+    total = len(sources)
     if progress_callback:
-        progress_callback(30)
+        progress_callback(0)
 
-    try:
-        # docx2pdf.convert() Word COM arayüzünü çağırır (Windows) ya da
-        # Word for Mac / LibreOffice'i başlatır (macOS)
-        docx2pdf.convert(str(source), str(output_path))
+    for index, source in enumerate(sources):
+        if cancel_check and cancel_check():
+            from core.worker import CancelledException
+            raise CancelledException("İşlem iptal edildi.")
 
-    except Exception as exc:
-        error_msg = str(exc)
+        output_path = _get_unique_output_path(output_folder, source)
 
-        # Yaygın hata türlerine göre kullanıcı dostu mesaj üret
-        if "Word" in error_msg or "com_error" in error_msg.lower() or "comtypes" in error_msg.lower():
+        if status_callback:
+            status_callback(
+                f"Dönüştürülüyor: {source.name}  ({index + 1}/{total})"
+            )
+
+        try:
+            docx2pdf.convert(str(source), str(output_path))
+        except Exception as exc:
+            _raise_conversion_error(source, exc)
+
+        if not output_path.exists() or output_path.stat().st_size == 0:
             raise RuntimeError(
-                "Microsoft Word bulunamadı veya başlatılamadı.\n"
-                "Word → PDF dönüşümü için sisteminizde Microsoft Word kurulu olmalıdır.\n\n"
-                f"Teknik detay: {error_msg}"
-            ) from exc
+                f"'{source.name}' için dönüşüm tamamlandı ancak PDF "
+                "dosyası oluşturulamadı. Microsoft Word kurulumunu kontrol edin."
+            )
 
-        if "PermissionError" in error_msg or "Access is denied" in error_msg:
-            raise PermissionError(
-                f"'{source.name}' dosyasına erişilemiyor.\n"
-                "Dosya başka bir program tarafından açık olabilir (Word gibi). "
-                "Lütfen kapatıp tekrar deneyin.\n\n"
-                f"Teknik detay: {error_msg}"
-            ) from exc
+        if progress_callback:
+            progress_callback(int((index + 1) / total * 100))
 
-        # Bilinmeyen hata — orijinal mesajı ilet
-        raise RuntimeError(
-            f"Dönüşüm sırasında beklenmedik bir hata oluştu:\n{error_msg}"
-        ) from exc
-
-    # ── Çıktı Doğrulama ──────────────────────────────────────────────────────
-    if not output_path.exists():
-        raise RuntimeError(
-            "Dönüşüm tamamlandı ancak PDF dosyası oluşturulamadı. "
-            "Lütfen Microsoft Word'ün düzgün kurulu olduğunu kontrol edin."
-        )
-
-    # ── İlerleme: Tamamlandı ─────────────────────────────────────────────────
-    if progress_callback:
-        progress_callback(100)
     if status_callback:
-        status_callback(f"Tamamlandı! → {output_path.name}")
+        status_callback(f"Tamamlandı! {total} Word belgesi PDF'e dönüştürüldü.")
 
-    return str(output_path)
+    return str(output_folder)
