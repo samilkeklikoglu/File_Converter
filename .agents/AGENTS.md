@@ -38,6 +38,11 @@ FileConverter/
 ├── requirements.txt             # Python bağımlılıkları
 ├── requirements-build.txt       # Sabitlenmiş PyInstaller bağımlılıkları
 ├── README.md                    # Kurulum, kullanım, test ve build rehberi
+├── LICENSE                      # GNU AGPLv3 proje lisansı
+├── THIRD_PARTY_NOTICES.md       # Dağıtılan bağımlılıkların lisans özeti
+├── PRIVACY.md                   # Yerel veri işleme gizlilik bildirimi
+├── CHANGELOG.md                 # Sürüm değişiklik geçmişi
+├── package_release.py           # Portable ZIP ve SHA-256 yayın çıktıları
 ├── TODO.md                      # Proje roadmap ve görev takibi
 ├── .gitignore
 │
@@ -497,7 +502,7 @@ python build.py
 6. **Çıktı konumu seçimi yok:** ~~Yalnızca PDF merge'de var~~ ✅ Düzeltildi (Her işlem öncesi QFileDialog soruyor)
 7. **Logging altyapısı yok:** Hata takibi zorlaşır
 8. **Uygulama ikonu:** ✅ PNG kaynak ve 16–256 px ICO oluşturuldu; pencere/build/installer'a bağlandı
-9. **Test paketi:** ✅ `tests/` altında 35 birim ve regresyon testi mevcut
+9. **Test paketi:** ✅ `tests/` altında 37 birim ve regresyon testi mevcut
 10. **Worker sinyal adı:** ✅ Başarı sinyali `succeeded`; temizlik yerleşik `QThread.finished` üzerinden yapılır
 11. **Kısmi çıktılar:** ✅ Atomik tekli çıktılar ve başarısız toplu işlem temizliği eklendi
 12. **Klasör tarama:** ✅ Büyük klasörler `PathScanWorker` ile UI thread'i dışında taranır

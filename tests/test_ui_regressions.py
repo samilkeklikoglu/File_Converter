@@ -53,6 +53,20 @@ class UiRegressionTests(unittest.TestCase):
     def test_application_icon_loads(self):
         self.assertFalse(_load_app_icon().isNull())
 
+    def test_about_dialog_exposes_license_and_source(self):
+        panel = SmartPanel()
+        with patch("ui.panels.smart_panel.QMessageBox") as message_box:
+            panel._show_about()
+
+        dialog = message_box.return_value
+        dialog.exec.assert_called_once()
+        rendered_text = dialog.setText.call_args.args[0]
+        self.assertIn("AGPL-3.0-only", rendered_text)
+        self.assertIn("github.com/samilkeklikoglu/File_Converter", rendered_text)
+        self.assertIn("hiçbir garanti", rendered_text)
+        self.assertEqual(panel.about_btn.text(), "Hakkında")
+        panel.close()
+
     def test_pdf_to_word_is_launched_as_non_cancellable(self):
         with tempfile.TemporaryDirectory(prefix="fileconverter_pdf_word_ui_") as temp_dir:
             source = Path(temp_dir) / "source.pdf"

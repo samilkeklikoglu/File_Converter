@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QFont, QDragEnterEvent, QDragMoveEvent, QDropEvent
 
+from app_info import APP_NAME, APP_VERSION, COPYRIGHT, LICENSE_ID, SOURCE_URL
 from ui.drop_zone import DropZone, extract_local_paths
 from ui.progress_widget import ProgressWidget
 from core.worker import ConversionWorker, PathScanWorker
@@ -248,7 +249,36 @@ class SmartPanel(QWidget):
         privacy_layout.addWidget(privacy_text)
         layout.addWidget(privacy)
 
+        self.about_btn = QPushButton("Hakkında")
+        self.about_btn.setIcon(qta.icon("fa5s.info-circle", color="#a9b6cc"))
+        self.about_btn.setToolTip("Lisans, garanti ve kaynak kodu bilgileri")
+        self.about_btn.setStyleSheet(
+            "QPushButton { min-height: 34px; padding: 0 12px; background: #162036;"
+            "border: 1px solid #2a3650; border-radius: 9px; color: #c7d2e5; }"
+            "QPushButton:hover { background: #1c2943; border-color: #526483; color: #ffffff; }"
+        )
+        self.about_btn.clicked.connect(self._show_about)
+        layout.addWidget(self.about_btn)
+
         return outer
+
+    def _show_about(self):
+        """Display the legal notices required by the application license."""
+        message = QMessageBox(self)
+        message.setIcon(QMessageBox.Icon.Information)
+        message.setWindowTitle(f"{APP_NAME} Hakkında")
+        message.setTextFormat(Qt.TextFormat.RichText)
+        message.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+        message.setText(
+            f"<h3>{APP_NAME} {APP_VERSION}</h3>"
+            "<p>Dosyalarınızı cihazınızda işleyen açık kaynak dönüşüm aracı.</p>"
+            f"<p>{COPYRIGHT}</p>"
+            f"<p><b>Lisans:</b> {LICENSE_ID}<br>"
+            "Bu program hiçbir garanti verilmeden dağıtılır. Lisans koşulları altında "
+            "kaynak kodunu inceleyebilir, değiştirebilir ve yeniden dağıtabilirsiniz.</p>"
+            f"<p><a href='{SOURCE_URL}'>Kaynak kodu, lisans ve üçüncü taraf bildirimleri</a></p>"
+        )
+        message.exec()
 
     # ── Scene 0: Empty / Waiting ───────────────────────────────────────────────
 

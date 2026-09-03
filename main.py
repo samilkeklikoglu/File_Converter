@@ -5,9 +5,8 @@ import sys
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
+from app_info import APP_NAME, APP_VERSION
 from ui.main_window import MainWindow
-
-APP_VERSION = "2.0.0"
 
 
 # Component-specific layout stays with each widget; shared controls live here.
@@ -99,8 +98,8 @@ QMessageBox QLabel { min-width: 320px; color: #e2e8f0; }
 
 def main():
     app = QApplication(sys.argv)
-    app.setApplicationName("FileConverter")
-    app.setApplicationDisplayName("FileConverter")
+    app.setApplicationName(APP_NAME)
+    app.setApplicationDisplayName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
     app.setStyle("Fusion")
 

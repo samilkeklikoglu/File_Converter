@@ -2,6 +2,8 @@
 
 **Sürüm:** 2.0.0
 
+**Lisans:** GNU Affero General Public License v3.0 (`AGPL-3.0-only`)
+
 FileConverter; resim, PDF ve Word belgeleri için sık kullanılan dönüşümleri tek
 bir PySide6 masaüstü arayüzünde toplayan bir dosya dönüştürme uygulamasıdır.
 Dosyalar seçilebilir veya sürükle-bırak ile eklenebilir; desteklenen klasörler
@@ -51,7 +53,8 @@ python -m unittest discover -s tests -v
 
 Testler dosya algılama, PDF sayfa aralıkları, Word toplu dönüşüm davranışı,
 atomik çıktı güvenliği, worker yaşam döngüsü, kaynak kapatma, arka planda klasör
-tarama ve UI regresyonlarını kapsar. Mevcut paket 35 test içerir.
+tarama, açık kaynak yasal bildirimleri, yayın paketleri ve UI regresyonlarını kapsar.
+Mevcut paket 37 test içerir.
 
 ## Standalone EXE oluşturma
 
@@ -69,9 +72,34 @@ değildir. PDF → Word bağımlılıkları nedeniyle tek dosyalı EXE yaklaşı
 Önce standalone EXE'yi oluşturun, ardından Inno Setup 6 ile `installer.iss`
 dosyasını derleyin. Sonuç `dist/FileConverter-2.0.0-Setup.exe` olarak yazılır.
 
+Installer derlendikten sonra versioned portable ZIP ve SHA-256 dosyasını üretin:
+
+```powershell
+python package_release.py
+```
+
 2.0.0 launch doğrulamasında gerçek EXE başlangıcı, Microsoft Word üzerinden
 DOCX → PDF dönüşümü ve installer kurulum/çalıştırma/kaldırma akışı başarıyla
 test edilmiştir.
+
+## İndirme
+
+Windows kullanıcıları için önerilen paket GitHub Releases sayfasındaki
+`FileConverter-2.0.0-Setup.exe` dosyasıdır. Kurulumsuz kullanım için ayrıca portable
+ZIP paketi sağlanır:
+
+<https://github.com/samilkeklikoglu/File_Converter/releases>
+
+## Gizlilik ve lisans
+
+FileConverter dönüşümleri cihaz üzerinde yerel olarak yapar; dosya, telemetri veya
+kullanım verisi bir sunucuya gönderilmez. Ayrıntılar için [PRIVACY.md](PRIVACY.md)
+dosyasına bakın.
+
+Bu proje GNU Affero General Public License v3.0 koşullarıyla açık kaynak olarak
+yayımlanır. Tam metin [LICENSE](LICENSE), bağımlılık bildirimleri ise
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dosyasındadır. Uygulamanın ilgili
+sürümüne ait karşılık gelen kaynak kodu GitHub sürüm etiketi üzerinden sunulur.
 
 ## Bilinen sınırlamalar
 

@@ -23,6 +23,9 @@
 ### Build & Dağıtım
 - [x] PyInstaller build scripti (`build.py`)
 - [x] Inno Setup installer scripti (`installer.iss`)
+- [x] AGPLv3 proje lisansı ve üçüncü taraf bağımlılık bildirimleri
+- [x] Yerel veri işleme gizlilik bildirimi
+- [x] Uygulama içinde Hakkında/Lisans görünümü
 
 ---
 
@@ -39,7 +42,7 @@
 - [x] PDF → Görsel'de DPI ayarını UI'a ekle
 - [x] Birden fazla Word dosyasını toplu dönüştürme desteği
 - [x] README.md oluştur (kurulum, kullanım, build ve sınırlamalar)
-- [x] Birim/regresyon testleri ekle (`tests/`, 35 senaryo)
+- [x] Birim/regresyon testleri ekle (`tests/`, 37 senaryo)
 
 ### Düşük Öncelik
 - [x] Klasör sürükle-bırak desteği (içindeki dosyaları otomatik bul)
