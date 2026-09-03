@@ -1,6 +1,6 @@
 # FileConverter
 
-**Version:** 2.0.0
+**Version:** 2.0.1
 
 **License:** GNU Affero General Public License v3.0 (`AGPL-3.0-only`)
 
@@ -51,26 +51,37 @@ test dependency:
 python -m unittest discover -s tests -v
 ```
 
-The 37 tests cover file detection, PDF page ranges, Word batch behavior, atomic
+The 38 tests cover file detection, PDF page ranges, console-free Word conversion, atomic
 output safety, worker lifecycle, resource cleanup, background folder scanning,
 open-source notices, release packaging, and UI regressions.
 
 ## Build a standalone Windows executable
 
 ```powershell
-python -m pip install -r requirements-build.txt
-python build.py
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt -r requirements-build.txt
+.\.venv\Scripts\python build.py
 ```
 
 The executable is created at `dist/FileConverter.exe`. The build script invokes
 PyInstaller through the active Python interpreter instead of depending on the system
-`PATH`. Because PDF to Word includes substantial native dependencies, the one-file
-executable is currently about 168 MB.
+`PATH`. Always build in a clean virtual environment so unrelated local packages cannot
+be bundled. The custom hooks retain every conversion feature while omitting optional
+video, Qt, Tk, and icon-family components that FileConverter never uses. The optimized
+one-file executable is approximately 110 MB.
+
+To exercise every conversion engine from a packaged executable, including Microsoft
+Word automation, run:
+
+```powershell
+.\dist\FileConverter.exe --runtime-check-report=.\build\runtime-report.txt
+Get-Content .\build\runtime-report.txt
+```
 
 ## Build the Windows installer
 
 Build the standalone executable first, then compile `installer.iss` with Inno Setup 6.
-The installer is written to `dist/FileConverter-2.0.0-Setup.exe`.
+The installer is written to `dist/FileConverter-2.0.1-Setup.exe`.
 
 After compiling the installer, create the versioned portable ZIP and SHA-256 checksums:
 
@@ -78,7 +89,7 @@ After compiling the installer, create the versioned portable ZIP and SHA-256 che
 python package_release.py
 ```
 
-The 2.0.0 release validation includes a real executable startup test, DOCX to PDF
+The 2.0.1 release validation includes a real executable startup test, DOCX to PDF
 conversion through Microsoft Word, and full installer install/start/uninstall smoke tests.
 
 ## Download
@@ -88,7 +99,7 @@ Download the latest version from the
 
 ### Install on Windows
 
-1. Open the latest release and download `FileConverter-2.0.0-Setup.exe`.
+1. Open the latest release and download `FileConverter-2.0.1-Setup.exe`.
 2. Double-click the downloaded installer.
 3. Read and accept the GNU AGPLv3 license agreement.
 4. Choose the installation folder. The default location is recommended.
@@ -98,7 +109,7 @@ Download the latest version from the
 The application is currently unsigned. Windows may display a Microsoft Defender
 SmartScreen message on first launch. If you downloaded the installer from this
 repository's official Releases page, select **More info**, verify that the app name is
-`FileConverter-2.0.0-Setup.exe`, and then select **Run anyway**. Do not bypass the
+`FileConverter-2.0.1-Setup.exe`, and then select **Run anyway**. Do not bypass the
 warning for copies downloaded from another source.
 
 FileConverter installs only for the current Windows user and does not require
@@ -107,7 +118,7 @@ administrator access. To uninstall it, open **Settings → Apps → Installed ap
 
 ### Use the portable version
 
-1. Download `FileConverter-2.0.0-Portable.zip` from the same release.
+1. Download `FileConverter-2.0.1-Portable.zip` from the same release.
 2. Extract the ZIP to a folder you control.
 3. Open the extracted folder and run `FileConverter.exe`.
 
@@ -118,7 +129,7 @@ For integrity verification, download `SHA256SUMS.txt` and compare the listed SHA
 value with the hash of your downloaded installer or portable ZIP:
 
 ```powershell
-Get-FileHash .\FileConverter-2.0.0-Setup.exe -Algorithm SHA256
+Get-FileHash .\FileConverter-2.0.1-Setup.exe -Algorithm SHA256
 ```
 
 ## Privacy and licensing

@@ -13,7 +13,7 @@ Scenes:
 import sys
 from pathlib import Path
 
-import qtawesome as qta
+from ui import icons as qta
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox,

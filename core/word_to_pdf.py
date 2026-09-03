@@ -5,6 +5,8 @@ Converts .docx / .doc files to PDF using Microsoft Word via the docx2pdf library
 Requires Microsoft Word on Windows or macOS.
 """
 
+from contextlib import redirect_stderr, redirect_stdout
+import os
 import sys
 from pathlib import Path
 from typing import Callable
@@ -132,7 +134,16 @@ def convert_word_to_pdf(
 
             try:
                 with atomic_output_path(output_path) as temporary:
-                    docx2pdf.convert(str(source), str(temporary))
+                    # GUI builds have no stdout/stderr streams. docx2pdf creates a
+                    # tqdm progress bar unconditionally, which crashes when its
+                    # default stream is None. The application reports progress in
+                    # its own UI, so discard the library's console-only output.
+                    with open(os.devnull, "w", encoding="utf-8") as console_sink:
+                        with (
+                            redirect_stdout(console_sink),
+                            redirect_stderr(console_sink),
+                        ):
+                            docx2pdf.convert(str(source), str(temporary))
                     if cancel_check and cancel_check():
                         from core.worker import CancelledException
                         raise CancelledException("Operation cancelled.")

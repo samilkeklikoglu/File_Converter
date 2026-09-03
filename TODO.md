@@ -46,7 +46,7 @@
 - [x] Expose PDF-to-image DPI in the UI
 - [x] Support batch Word conversion
 - [x] Document setup, usage, builds, and limitations
-- [x] Add 37 unit and regression tests
+- [x] Add 38 unit and regression tests
 
 ### Low priority
 
@@ -63,14 +63,15 @@
 - [ ] Handle multi-frame TIFF and animated WEBP files explicitly
 - [ ] Split `SmartPanel` into smaller controller and widget components
 - [ ] Add automated test and build verification in CI
-- [ ] Build releases in a clean, isolated environment
+- [x] Build releases in a clean, isolated environment
 - [ ] Add trusted Windows code signing
 
-## 🚀 2.0.0 release validation
+## 🚀 2.0.1 release validation
 
 - [x] Real DOCX-to-PDF smoke test through Microsoft Word
 - [x] Standalone executable build and startup test
 - [x] Installer compile, install, launch, and uninstall test
+- [x] Packaged end-to-end runtime check for every conversion engine
 - [x] Runtime dependency versions pinned to verified releases
 
-> Last updated: 2026-09-03
+> Last updated: 2026-09-04

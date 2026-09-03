@@ -1,7 +1,7 @@
 # FileConverter — AI Context Document
 
-> **Last updated:** 2026-09-03
-> **Version:** v2.0.0
+> **Last updated:** 2026-09-04
+> **Version:** v2.0.1
 > **Language:** Python 3.12+
 > **Framework:** PySide6 (Qt 6)
 > **Platform:** Windows (primary), macOS (partial support)
@@ -199,7 +199,6 @@ the project license, privacy notice, changelog, and third-party notices.
 - `SmartPanel` should eventually be split into smaller components.
 - CI test/build verification is not implemented.
 - Public binaries are not yet signed with a trusted Windows code-signing certificate.
-- Release builds should eventually run in a clean, isolated environment.
 
 ## 11. Commands
 

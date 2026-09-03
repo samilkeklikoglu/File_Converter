@@ -97,6 +97,19 @@ QMessageBox QLabel { min-width: 320px; color: #e2e8f0; }
 
 
 def main():
+    runtime_report = next(
+        (
+            argument.partition("=")[2]
+            for argument in sys.argv[1:]
+            if argument.startswith("--runtime-check-report=")
+        ),
+        None,
+    )
+    if runtime_report is not None:
+        from core.runtime_check import run_runtime_check
+
+        raise SystemExit(run_runtime_check(runtime_report))
+
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setApplicationDisplayName(APP_NAME)

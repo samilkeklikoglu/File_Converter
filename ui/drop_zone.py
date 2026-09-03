@@ -5,7 +5,7 @@ Accepts any file type via drag-and-drop or click-to-browse.
 Type detection and filtering are handled by the parent panel (SmartPanel / file_detector).
 """
 
-import qtawesome as qta
+from ui import icons as qta
 from pathlib import Path
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog
 from PySide6.QtCore import Qt, Signal

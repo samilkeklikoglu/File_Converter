@@ -12,7 +12,26 @@ ENTRY_POINT = PROJECT_ROOT / "main.py"
 BUILD_DIR = PROJECT_ROOT / "build"
 DIST_DIR = PROJECT_ROOT / "dist"
 BUILD_REQUIREMENTS = PROJECT_ROOT / "requirements-build.txt"
+HOOKS_DIR = PROJECT_ROOT / "hooks"
 APP_NAME = "FileConverter"
+
+# These modules are optional branches of runtime dependencies. FileConverter uses
+# Qt Core/Gui/Widgets only, and pdf2docx's library API rather than its Tk GUI.
+# Keeping the exclusions explicit prevents PyInstaller's static analysis from
+# bundling complete GUI stacks that the application can never execute.
+PYINSTALLER_EXCLUDES = (
+    "pdf2docx.gui",
+    "tkinter",
+    "setuptools",
+    "PySide6.QtDataVisualization",
+    "PySide6.QtNetwork",
+    "PySide6.QtOpenGL",
+    "PySide6.QtOpenGLWidgets",
+    "PySide6.QtPdf",
+    "PySide6.QtQml",
+    "PySide6.QtQuick",
+    "PySide6.QtVirtualKeyboard",
+)
 
 
 def _ensure_pyinstaller() -> None:
@@ -62,7 +81,9 @@ def build_app() -> Path:
         f"--workpath={BUILD_DIR}",
         f"--distpath={DIST_DIR}",
         f"--specpath={BUILD_DIR}",
+        f"--additional-hooks-dir={HOOKS_DIR}",
     ]
+    command.extend(f"--exclude-module={module}" for module in PYINSTALLER_EXCLUDES)
 
     icon_path = PROJECT_ROOT / "assets" / "fileconverter.ico"
     if icon_path.exists():

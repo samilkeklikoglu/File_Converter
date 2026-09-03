@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-import qtawesome as qta
+from ui import icons as qta
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QProgressBar, QLabel, QPushButton
 from PySide6.QtCore import Qt, Signal
 

@@ -82,6 +82,26 @@ class WordToPdfTests(unittest.TestCase):
         ):
             convert_word_to_pdf([str(source)], str(self.output))
 
+    def test_conversion_works_without_console_streams(self):
+        source = self._source("consoleless.docx")
+        observed_streams = []
+
+        def fake_convert(_source, output):
+            observed_streams.append((sys.stdout is not None, sys.stderr is not None))
+            Path(output).write_bytes(b"generated pdf")
+
+        fake_module = SimpleNamespace(convert=fake_convert)
+        with (
+            patch.dict(sys.modules, {"docx2pdf": fake_module}),
+            patch("core.word_to_pdf.sys.platform", "win32"),
+            patch.object(sys, "stdout", None),
+            patch.object(sys, "stderr", None),
+        ):
+            convert_word_to_pdf([str(source)], str(self.output))
+
+        self.assertEqual(observed_streams, [(True, True)])
+        self.assertTrue((self.output / "consoleless.pdf").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

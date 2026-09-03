@@ -12,7 +12,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QWidget, QVBoxLayout
 from PySide6.QtGui import QCloseEvent, QIcon
 
-import qtawesome as qta
+from ui import icons as qta
 from ui.panels.smart_panel import SmartPanel
 
 

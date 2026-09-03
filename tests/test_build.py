@@ -21,6 +21,17 @@ class BuildScriptTests(unittest.TestCase):
                     f"--add-data={icon_path}{build.os.pathsep}assets",
                     command,
                 )
+                self.assertIn(
+                    f"--additional-hooks-dir={build.HOOKS_DIR}",
+                    command,
+                )
+                for module in build.PYINSTALLER_EXCLUDES:
+                    self.assertIn(f"--exclude-module={module}", command)
+                self.assertTrue((build.HOOKS_DIR / "hook-cv2.py").is_file())
+                self.assertTrue((build.HOOKS_DIR / "hook-qtawesome.py").is_file())
+                self.assertTrue(
+                    (build.HOOKS_DIR / "hook-PySide6.QtGui.py").is_file()
+                )
                 (dist_dir / "FileConverter.exe").write_bytes(b"executable")
 
             with (

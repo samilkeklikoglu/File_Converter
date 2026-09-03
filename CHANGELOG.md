@@ -2,6 +2,21 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.1] - 2026-09-04
+
+### Changed
+
+- Reduced the standalone executable from approximately 160 MB to 109 MB without
+  removing conversion features.
+- Added isolated-build rules that omit unused Qt, Tk, OpenCV video, and icon-font
+  components.
+- Added a packaged runtime check covering every conversion engine.
+
+### Fixed
+
+- Prevented Word-to-PDF conversion from crashing in console-free Windows builds when
+  `docx2pdf` initializes its terminal progress display.
+
 ## [2.0.0] - 2026-09-03
 
 ### Added
@@ -26,4 +41,5 @@ This project follows [Semantic Versioning](https://semver.org/).
 - Real Microsoft Word DOCX to PDF smoke test.
 - Standalone executable and installer install/start/uninstall smoke tests.
 
+[2.0.1]: https://github.com/samilkeklikoglu/File_Converter/releases/tag/v2.0.1
 [2.0.0]: https://github.com/samilkeklikoglu/File_Converter/releases/tag/v2.0.0

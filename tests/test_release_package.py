@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 from zipfile import ZipFile
 
+from app_info import APP_NAME, APP_VERSION
 from package_release import LEGAL_FILES, package_release
 
 
@@ -12,8 +13,10 @@ class ReleasePackageTests(unittest.TestCase):
             root = Path(temp_dir)
             dist = root / "dist"
             dist.mkdir()
-            (dist / "FileConverter.exe").write_bytes(b"portable")
-            (dist / "FileConverter-2.0.0-Setup.exe").write_bytes(b"installer")
+            (dist / f"{APP_NAME}.exe").write_bytes(b"portable")
+            installer_name = f"{APP_NAME}-{APP_VERSION}-Setup.exe"
+            portable_name = f"{APP_NAME}-{APP_VERSION}-Portable.zip"
+            (dist / installer_name).write_bytes(b"installer")
             for name in LEGAL_FILES:
                 (root / name).write_text(name, encoding="utf-8")
 
@@ -22,11 +25,11 @@ class ReleasePackageTests(unittest.TestCase):
             with ZipFile(portable) as archive:
                 self.assertEqual(
                     set(archive.namelist()),
-                    {"FileConverter.exe", *LEGAL_FILES},
+                    {f"{APP_NAME}.exe", *LEGAL_FILES},
                 )
             checksum_text = checksums.read_text(encoding="utf-8")
-            self.assertIn("FileConverter-2.0.0-Setup.exe", checksum_text)
-            self.assertIn("FileConverter-2.0.0-Portable.zip", checksum_text)
+            self.assertIn(installer_name, checksum_text)
+            self.assertIn(portable_name, checksum_text)
 
 
 if __name__ == "__main__":

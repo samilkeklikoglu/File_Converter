@@ -4,12 +4,12 @@
 [Setup]
 AppId={{C6F6F945-8B2E-4F36-8096-7D51CD77A142}
 AppName=FileConverter
-AppVersion=2.0.0
+AppVersion=2.0.1
 AppPublisher=FileConverter Contributors
 AppPublisherURL=https://github.com/samilkeklikoglu/File_Converter
 AppSupportURL=https://github.com/samilkeklikoglu/File_Converter/issues
 AppUpdatesURL=https://github.com/samilkeklikoglu/File_Converter/releases
-VersionInfoVersion=2.0.0.0
+VersionInfoVersion=2.0.1.0
 DefaultDirName={localappdata}\Programs\FileConverter
 DefaultGroupName=FileConverter
 UninstallDisplayIcon={app}\FileConverter.exe
@@ -21,7 +21,7 @@ WizardStyle=modern
 Compression=lzma2
 SolidCompression=yes
 OutputDir=dist
-OutputBaseFilename=FileConverter-2.0.0-Setup
+OutputBaseFilename=FileConverter-2.0.1-Setup
 DisableWelcomePage=no
 LicenseFile=LICENSE
 
