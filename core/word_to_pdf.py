@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 from typing import Callable
 
+from core.output_utils import atomic_output_path, cleanup_created_files
+
 
 WORD_EXTENSIONS: frozenset[str] = frozenset({".docx", ".doc"})
 
@@ -111,34 +113,41 @@ def convert_word_to_pdf(
     output_folder.mkdir(parents=True, exist_ok=True)
 
     total = len(sources)
+    created_files: list[Path] = []
     if progress_callback:
         progress_callback(0)
 
-    for index, source in enumerate(sources):
-        if cancel_check and cancel_check():
-            from core.worker import CancelledException
-            raise CancelledException("İşlem iptal edildi.")
+    try:
+        for index, source in enumerate(sources):
+            if cancel_check and cancel_check():
+                from core.worker import CancelledException
+                raise CancelledException("İşlem iptal edildi.")
 
-        output_path = _get_unique_output_path(output_folder, source)
+            output_path = _get_unique_output_path(output_folder, source)
 
-        if status_callback:
-            status_callback(
-                f"Dönüştürülüyor: {source.name}  ({index + 1}/{total})"
-            )
+            if status_callback:
+                status_callback(
+                    f"Dönüştürülüyor: {source.name}  ({index + 1}/{total})"
+                )
 
-        try:
-            docx2pdf.convert(str(source), str(output_path))
-        except Exception as exc:
-            _raise_conversion_error(source, exc)
+            try:
+                with atomic_output_path(output_path) as temporary:
+                    docx2pdf.convert(str(source), str(temporary))
+                    if cancel_check and cancel_check():
+                        from core.worker import CancelledException
+                        raise CancelledException("İşlem iptal edildi.")
+            except Exception as exc:
+                from core.worker import CancelledException
+                if isinstance(exc, CancelledException):
+                    raise
+                _raise_conversion_error(source, exc)
 
-        if not output_path.exists() or output_path.stat().st_size == 0:
-            raise RuntimeError(
-                f"'{source.name}' için dönüşüm tamamlandı ancak PDF "
-                "dosyası oluşturulamadı. Microsoft Word kurulumunu kontrol edin."
-            )
-
-        if progress_callback:
-            progress_callback(int((index + 1) / total * 100))
+            created_files.append(output_path)
+            if progress_callback:
+                progress_callback(int((index + 1) / total * 100))
+    except Exception:
+        cleanup_created_files(created_files)
+        raise
 
     if status_callback:
         status_callback(f"Tamamlandı! {total} Word belgesi PDF'e dönüştürüldü.")

@@ -1,103 +1,116 @@
 """
-core/worker.py — QThread Tabanlı Arka Plan İşçisi
+core/worker.py — QThread-Based Background Worker
 
-ÖĞRENME NOTU — Neden QThread?
-
-  UI thread'i (ana thread): Tüm widget çizimi ve kullanıcı etkileşimi burada.
-  Eğer bu thread uzun süre meşgul olursa → pencere donar, yanıt vermez.
-  
-  Çözüm: Ağır işi ayrı bir thread'de yap.
-  Qt'de bunun doğru yolu: QThread subclass'ı.
-  
-  Thread Güvenliği — ÇOK ÖNEMLİ:
-    Farklı thread'lerden aynı widget'a erişmek tehlikeli!
-    Doğru yol: QThread'den sinyal(Signal) yay, ana thread'de slot ile yakala.
-    Sinyal-slot mekanizması thread'ler arası güvenli iletişimi otomatik sağlar.
-  
-  Yanlış (tehlikeli):
-    # worker thread içinde:
-    self.progress_bar.setValue(50)  ← Widget'a direkt erişim! YANLIŞ
-  
-  Doğru:
-    # worker thread:
-    self.progress.emit(50)           ← Sinyal yay
-    # ana thread'deki slot:
-    def on_progress(val): self.progress_bar.setValue(val)  ← Widget burada güvenli
+Runs any conversion function in a background thread to keep the UI responsive.
+Communicates progress and results back to the main thread via Qt signals.
 """
 
 from PySide6.QtCore import QThread, Signal
 
 
+class CancelledException(Exception):
+    """Raised by conversion functions when a cancel_check callback returns True."""
+    pass
+
+
 class ConversionWorker(QThread):
     """
-    Arka planda herhangi bir dosya dönüşümü yapan generic işçi thread'i.
+    Generic background worker that executes a conversion function in a separate thread.
 
-    Hangi dönüşüm fonksiyonu çalıştırılacağı `func` parametresiyle belirlenir;
-    bu sayede worker image_to_pdf, word_to_pdf veya gelecekteki herhangi bir
-    dönüştürücüyle kullanılabilir.
+    The conversion function is passed via `func` at construction time, making this
+    worker reusable for image-to-PDF, word-to-PDF, PDF merging, or any future converter.
 
-    Kullanım (Resim → PDF):
-        worker = ConversionWorker(
-            func=core.image_to_pdf.convert_images_to_pdf,
-            kwargs={'image_paths': [...], 'output_path': '...', 'page_size': 'A4'}
-        )
+    All converter functions must follow this contract:
+        - Accept `progress_callback: Callable[[int], None]` keyword argument.
+        - Accept `status_callback: Callable[[str], None]` keyword argument.
+        - Accept `cancel_check: Callable[[], bool]` keyword argument.
+        - Return the full output file path (str) on success.
+        - Raise CancelledException when cancel_check() returns True.
+        - Raise an exception on failure (never return silently).
 
-    Kullanım (Word → PDF):
-        worker = ConversionWorker(
-            func=core.word_to_pdf.convert_word_to_pdf,
-            kwargs={'input_path': '...', 'output_dir': '...'}
-        )
+    Signals:
+        progress  (int): Progress percentage, 0–100.
+        status    (str): Human-readable status message.
+        succeeded (str): Emitted on success with the output file path.
+        error     (str): Emitted on failure with the error message.
+        cancelled ():    Emitted when the operation is cancelled by the user.
 
-    Tüm dönüştürücü fonksiyonlar şu sözleşmeye uymalıdır:
-        - `progress_callback: Callable[[int], None]` parametresini kabul etmeli
-        - `status_callback: Callable[[str], None]` parametresini kabul etmeli
-        - Başarı durumunda çıktı dosyasının tam yolunu (str) döndürmeli
-        - Hata durumunda exception fırlatmalı (return değil)
-
-    Sinyaller:
-        progress (int) : 0-100 arası ilerleme yüzdesi
-        status   (str) : Anlık durum metni
-        finished (str) : Başarı — çıktı dosyasının tam yolu
-        error    (str) : Hata — kullanıcıya gösterilecek mesaj
-
-    Parametreler:
-        func    : Çalıştırılacak dönüşüm fonksiyonu
-        kwargs  : O fonksiyona geçirilecek anahtar-kelime argümanlar
+    Args:
+        func:   The conversion function to execute.
+        kwargs: Keyword arguments forwarded to `func` (excluding callbacks).
     """
-    
-    # ── Sinyaller ────────────────────────────────────────────────────────────
-    # Bu sinyaller farklı türde veri taşır:
-    
-    progress = Signal(int)   # 0-100 arası ilerleme yüzdesi
-    status   = Signal(str)   # "İşleniyor: foto.jpg (2/5)" gibi durum metni
-    finished = Signal(str)   # Başarı: çıktı dosyasının tam yolu
-    error    = Signal(str)   # Hata: kullanıcıya gösterilecek mesaj
-    
+
+    progress  = Signal(int)
+    status    = Signal(str)
+    succeeded = Signal(str)
+    error     = Signal(str)
+    cancelled = Signal()
+
     def __init__(self, func, kwargs: dict, parent=None):
         super().__init__(parent)
-        self._func = func      # Çalıştırılacak fonksiyon
-        self._kwargs = kwargs  # Fonksiyon argümanları
-    
+        self._func = func
+        self._kwargs = kwargs
+        self._cancelled = False
+
+    def cancel(self):
+        """Request cancellation. Thread-safe — can be called from the main thread."""
+        self._cancelled = True
+
+    def is_cancelled(self) -> bool:
+        """Returns True if cancellation has been requested."""
+        return self._cancelled
+
     def run(self):
-        """
-        QThread.start() çağrılınca ayrı thread'de bu metot çalışır.
-        
-        Progress callback'i kwargs içine ekliyoruz:
-        Dönüşüm fonksiyonu bu callback'leri çağırdıkça sinyaller yayılır.
-        """
         try:
-            # Callback fonksiyonları sinyale bağla
-            # Dönüşüm fonksiyonu bu callback'leri çağırarak bize bilgi verir
             self._kwargs['progress_callback'] = lambda v: self.progress.emit(v)
             self._kwargs['status_callback']   = lambda s: self.status.emit(s)
-            
-            # Asıl dönüşüm fonksiyonunu çalıştır
+            self._kwargs['cancel_check']      = self.is_cancelled
+
             output_path = self._func(**self._kwargs)
-            
-            # Başarı sinyali yay (ana thread yakalar)
-            self.finished.emit(output_path)
-            
+
+            if self._cancelled:
+                self.cancelled.emit()
+            else:
+                self.succeeded.emit(output_path)
+
+        except CancelledException:
+            self.cancelled.emit()
+
         except Exception as exc:
-            # Hatayı yakala, kullanıcıya anlaşılır mesaj gönder
-            # Uygulama ÇÖKMEZ — sadece hata sinyali yayılır
+            if self._cancelled:
+                self.cancelled.emit()
+            else:
+                self.error.emit(str(exc))
+
+
+class PathScanWorker(QThread):
+    """Expand dropped folders without blocking the UI thread."""
+
+    completed = Signal(list)
+    error = Signal(str)
+    cancelled = Signal()
+
+    def __init__(self, paths: list[str], parent=None):
+        super().__init__(parent)
+        self._paths = list(paths)
+        self._cancelled = False
+
+    def cancel(self):
+        self._cancelled = True
+
+    def is_cancelled(self) -> bool:
+        return self._cancelled
+
+    def run(self):
+        from core.file_detector import expand_supported_paths
+
+        try:
+            paths = expand_supported_paths(self._paths, self.is_cancelled)
+            if self._cancelled:
+                self.cancelled.emit()
+            else:
+                self.completed.emit(paths)
+        except CancelledException:
+            self.cancelled.emit()
+        except Exception as exc:
             self.error.emit(str(exc))

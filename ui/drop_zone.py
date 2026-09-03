@@ -1,195 +1,212 @@
 """
-ui/drop_zone.py — Sürükle-Bırak Alanı
+ui/drop_zone.py — Drag-and-Drop File Input Widget
 
-ÖĞRENME NOTU — Drag & Drop:
-  Qt'de sürükle-bırak, event (olay) override etmekle çalışır.
-  
-  Sürükleme döngüsü:
-  1. dragEnterEvent  → kullanıcı widget'ın üzerine geldi (kabul et/reddet)
-  2. dragMoveEvent   → widget üzerinde hareket ediyor (genellikle aynı karar)
-  3. dropEvent       → kullanıcı bıraktı → dosya yollarını çıkar
-  4. dragLeaveEvent  → kullanıcı widget'tan çıktı (iptal)
-  
-  MIME Data: Sürüklenen veri, MIME türleriyle taşınır.
-  Dosya sürükleme → 'text/uri-list' MIME türü → QUrl listesi
-  
-  QUrl.toLocalFile() → "C:/Users/.../foto.jpg" gibi yerel yola çevirir.
+Accepts any file type via drag-and-drop or click-to-browse.
+Type detection and filtering are handled by the parent panel (SmartPanel / file_detector).
 """
 
 import qtawesome as qta
 from pathlib import Path
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QDragLeaveEvent
+from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent, QDragLeaveEvent, QMouseEvent
+
+
+def extract_local_paths(urls) -> list[str]:
+    """Return existing local file and directory paths from dropped URLs."""
+    paths: list[str] = []
+    for url in urls:
+        local_path = url.toLocalFile()
+        if not local_path:
+            continue
+        path = Path(local_path)
+        if path.is_file() or path.is_dir():
+            paths.append(str(path))
+    return paths
 
 
 class DropZone(QWidget):
     """
-    Sürükle-bırak alanı widget'ı.
-    
-    Parametreler:
-        accepted_extensions: Kabul edilen uzantılar kümesi, örn: {'.jpg', '.png'}
-                             None verilirse tüm dosyalar kabul edilir.
-    
-    Sinyaller:
-        files_dropped(list[str]): Bırakılan dosyaların tam yolları
+    A drag-and-drop target widget that accepts files of any type.
+
+    File type validation is delegated to the parent panel; this widget
+    only handles the drop event and emits the resulting file paths.
+
+    Signals:
+        files_dropped(list[str]): Emitted with the list of dropped file paths.
     """
-    
-    files_dropped = Signal(list)  # list[str] — dosya yolları
-    
-    # Renk sabitleri (QSS'ye taşımak yerine burada tutuyoruz, çünkü
-    # programatik olarak değiştiriyoruz)
-    _STYLE_NORMAL = """
-        QWidget#dropZone {
-            background-color: #13131f;
-            border: 2px dashed #3a3a60;
-            border-radius: 14px;
-        }
-    """
-    _STYLE_HOVER = """
-        QWidget#dropZone {
-            background-color: #1a1a35;
-            border: 2px dashed #7c6af7;
-            border-radius: 14px;
-        }
-    """
-    _STYLE_REJECT = """
-        QWidget#dropZone {
-            background-color: #1f1010;
-            border: 2px dashed #c0392b;
-            border-radius: 14px;
-        }
-    """
-    
-    def __init__(self, accepted_extensions: set[str] | None = None, parent=None):
+
+    files_dropped = Signal(list)
+
+    _BASE_STYLE = (
+        "background-color: {bg};"
+        "border: 2px dashed {border};"
+        "border-radius: 16px;"
+    )
+
+    _STATES = {
+        "normal": {"bg": "#10192b", "border": "#34425e"},
+        "hover":  {"bg": "#14213a", "border": "#6f91ff"},
+        "reject": {"bg": "#24151c", "border": "#f87171"},
+    }
+
+    # Transparent style applied once to all child labels so parent
+    # stylesheet changes never cascade into them.
+    _CHILD_TRANSPARENT = (
+        "background: transparent; border: none;"
+    )
+
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("dropZone")
-        self.accepted_extensions = accepted_extensions  # örn: {'.jpg', '.png', '.jpeg'}
-        
-        # Qt'ye bu widget'ın sürüklemeyi kabul ettiğini söyle
         self.setAcceptDrops(True)
-        self.setMinimumHeight(180)
-        
+        self.setMinimumHeight(260)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setToolTip("Dosya veya klasör seçmek için tıklayın")
         self._build_ui()
-        self._set_normal_style()
-    
+        self._apply_state("normal")
+
     def _build_ui(self):
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.setSpacing(12)
-        
-        # İkon (qtawesome ile)
+        layout.setSpacing(9)
+        layout.setContentsMargins(40, 34, 40, 34)
+
+        # Icon container — has its own objectName so the parent
+        # stylesheet never touches it.
+        self.icon_container = QWidget()
+        self.icon_container.setObjectName("dropZoneIconContainer")
+        self.icon_container.setFixedSize(72, 72)
+        self.icon_container.setStyleSheet(
+            "QWidget#dropZoneIconContainer {"
+            "  background-color: #1b2a49;"
+            "  border-radius: 22px;"
+            "  border: 1px solid #3b5483;"
+            "}"
+        )
+        icon_inner = QVBoxLayout(self.icon_container)
+        icon_inner.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_inner.setContentsMargins(0, 0, 0, 0)
+
         self.icon_label = QLabel()
+        self.icon_label.setObjectName("dropZoneIcon")
         self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon_pixmap = qta.icon("fa5s.cloud-upload-alt", color="#5a5a90").pixmap(52, 52)
-        self.icon_label.setPixmap(icon_pixmap)
-        
-        # Ana metin
-        self.main_label = QLabel("Dosyaları buraya sürükleyin")
+        self.icon_label.setStyleSheet(self._CHILD_TRANSPARENT)
+        self.icon_label.setPixmap(
+            qta.icon("fa5s.file-import", color="#8ca5ff").pixmap(30, 30)
+        )
+        icon_inner.addWidget(self.icon_label)
+
+        # Text content
+        self.main_label = QLabel("Dosyalarınızı buraya bırakın")
+        self.main_label.setObjectName("dropZoneMainLabel")
         self.main_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.main_label.setStyleSheet("font-size: 15px; font-weight: 600; color: #8080c0;")
-        
-        # Alt metin (uzantılar)
-        ext_text = "veya tıklayarak seçin"
-        if self.accepted_extensions:
-            exts = "  ".join(e.upper().lstrip('.') for e in sorted(self.accepted_extensions))
-            ext_text = f"Desteklenen: {exts}"
-        
-        self.sub_label = QLabel(ext_text)
+        self.main_label.setStyleSheet(
+            "font-size: 19px; font-weight: 700; color: #f4f7ff;"
+            "background: transparent; border: none;"
+        )
+
+        self.sub_label = QLabel("Seçmek için bu alana tıklayabilir veya bir klasör bırakabilirsiniz")
+        self.sub_label.setObjectName("dropZoneSubLabel")
         self.sub_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.sub_label.setStyleSheet("font-size: 12px; color: #505080;")
-        
-        layout.addWidget(self.icon_label)
+        self.sub_label.setStyleSheet(
+            "font-size: 12px; color: #94a3bb; background: transparent; border: none;"
+        )
+
+        # Format pills row
+        pills_row = QHBoxLayout()
+        pills_row.setSpacing(6)
+        pills_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        for i, (fmt, color) in enumerate([
+            ("JPG", "#9db1d4"), ("PNG", "#9db1d4"), ("PDF", "#ff9b9b"),
+            ("DOCX", "#8eb7ff"), ("WEBP", "#9db1d4"),
+        ]):
+            pill = QLabel(fmt)
+            pill.setObjectName(f"dropZonePill_{i}")
+            pill.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            pill.setFixedHeight(22)
+            pill.setStyleSheet(
+                f"color: {color}; background-color: transparent;"
+                f"border: 1px solid #34425e; border-radius: 6px;"
+                f"padding: 3px 9px; font-size: 10px; font-weight: 700;"
+                f"letter-spacing: 0.5px;"
+            )
+            pills_row.addWidget(pill)
+
+        layout.addWidget(self.icon_container, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout.addSpacing(8)
         layout.addWidget(self.main_label)
         layout.addWidget(self.sub_label)
-    
-    # ── Sürükle-Bırak Event'leri ──────────────────────────────────────────────
-    
+        layout.addSpacing(10)
+        layout.addLayout(pills_row)
+
+    # ── Click-to-Browse ───────────────────────────────────────────────────────
+
+    def mousePressEvent(self, event: QMouseEvent):
+        """Opens a file dialog when the drop zone is clicked."""
+        if event.button() == Qt.MouseButton.LeftButton:
+            paths, _ = QFileDialog.getOpenFileNames(
+                self,
+                "Dosya Seç",
+                "",
+                "Desteklenen Dosyalar (*.jpg *.jpeg *.png *.webp *.bmp *.tiff *.tif "
+                "*.docx *.doc *.pdf);;"
+                "Tüm Dosyalar (*.*)"
+            )
+            if paths:
+                self.files_dropped.emit(paths)
+        super().mousePressEvent(event)
+
+    # ── Drag-and-Drop Events ──────────────────────────────────────────────────
+
     def dragEnterEvent(self, event: QDragEnterEvent):
-        """
-        Kullanıcı bir şeyi bu widget'ın üzerine sürükledi.
-        
-        event.mimeData(): Sürüklenen verinin içeriği
-        hasUrls(): Dosya/klasör sürükleniyorsa True döner
-        
-        Eğer kabul edersek: event.acceptProposedAction()
-        Reddedersek: event.ignore() → Qt başka widget'a sorar
-        """
         if event.mimeData().hasUrls():
-            # Sürüklenen dosyaların uzantılarını kontrol et
             urls = event.mimeData().urls()
-            if self._has_valid_files(urls):
+            if extract_local_paths(urls):
                 event.acceptProposedAction()
                 self._set_hover_style()
             else:
-                event.acceptProposedAction()  # yine de kabul, ama kırmızı göster
-                self._set_reject_style()
+                event.ignore()
         else:
             event.ignore()
-    
+
     def dragMoveEvent(self, event: QDragMoveEvent):
-        """
-        Kullanıcı widget üzerinde hareket ediyor.
-        dragEnterEvent ile aynı kararı veriyoruz.
-        """
-        if event.mimeData().hasUrls():
+        if (
+            event.mimeData().hasUrls()
+            and extract_local_paths(event.mimeData().urls())
+        ):
             event.acceptProposedAction()
-    
+        else:
+            event.ignore()
+
     def dragLeaveEvent(self, event: QDragLeaveEvent):
-        """Kullanıcı widget'tan çıktı, normal stile dön."""
         self._set_normal_style()
-    
+
     def dropEvent(self, event: QDropEvent):
-        """
-        Kullanıcı dosyaları bıraktı — asıl iş burada!
-        
-        event.mimeData().urls() → QUrl listesi
-        url.toLocalFile()       → "C:/Users/.../foto.jpg" gibi yerel yol
-        """
         self._set_normal_style()
-        
+
         urls = event.mimeData().urls()
-        
-        # Geçerli dosya yollarını topla
-        valid_paths = []
-        for url in urls:
-            local_path = url.toLocalFile()
-            path = Path(local_path)
-            
-            # Klasör değil, dosya olmalı
-            if not path.is_file():
-                continue
-            
-            # Uzantı filtresi uygulanıyorsa kontrol et
-            if self.accepted_extensions:
-                if path.suffix.lower() not in self.accepted_extensions:
-                    continue
-            
-            valid_paths.append(str(path))
-        
-        if valid_paths:
-            # Sinyali yayıyoruz → bizi dinleyen panel dosyaları alacak
-            self.files_dropped.emit(valid_paths)
+        paths = extract_local_paths(urls)
+
+        if paths:
+            self.files_dropped.emit(paths)
             event.acceptProposedAction()
-    
-    # ── Yardımcı Metodlar ─────────────────────────────────────────────────────
-    
-    def _has_valid_files(self, urls) -> bool:
-        """Sürüklenen dosyaların en az biri kabul edilen türde mi?"""
-        if not self.accepted_extensions:
-            return True  # filtre yoksa hepsini kabul et
-        
-        for url in urls:
-            path = Path(url.toLocalFile())
-            if path.suffix.lower() in self.accepted_extensions:
-                return True
-        return False
-    
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
+    def _apply_state(self, state: str):
+        """Apply a visual state without touching child widget styles."""
+        colors = self._STATES[state]
+        self.setStyleSheet(
+            f"QWidget#dropZone {{ {self._BASE_STYLE.format(**colors)} }}"
+        )
+
     def _set_normal_style(self):
-        self.setStyleSheet(self._STYLE_NORMAL)
-    
+        self._apply_state("normal")
+
     def _set_hover_style(self):
-        self.setStyleSheet(self._STYLE_HOVER)
-    
+        self._apply_state("hover")
+
     def _set_reject_style(self):
-        self.setStyleSheet(self._STYLE_REJECT)
+        self._apply_state("reject")
