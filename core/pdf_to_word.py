@@ -38,28 +38,28 @@ def convert_pdf_to_word(
         from pdf2docx import Converter  # noqa: PLC0415
     except ImportError:
         raise ImportError(
-            "pdf2docx kütüphanesi bulunamadı. "
-            "Lütfen 'pip install pdf2docx' komutuyla yükleyin."
+            "The pdf2docx package is not installed. "
+            "Install it with 'pip install pdf2docx'."
         )
 
     source = Path(pdf_path)
     if not source.is_file():
-        raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+        raise FileNotFoundError(f"File not found: {source.name}")
 
     output = Path(output_path)
     if output.suffix.lower() != ".docx":
-        raise ValueError("Word çıktısı .docx uzantılı olmalıdır.")
+        raise ValueError("The Word output must have a .docx extension.")
     if source.resolve() == output.resolve():
-        raise ValueError("Kaynak PDF ile Word çıktısı aynı dosya olamaz.")
+        raise ValueError("The source PDF and Word output cannot be the same file.")
 
     if status_callback:
-        status_callback("PDF analizi yapılıyor...")
+        status_callback("Analyzing PDF...")
     if progress_callback:
         progress_callback(10)
 
     if cancel_check and cancel_check():
         from core.worker import CancelledException
-        raise CancelledException("İşlem iptal edildi.")
+        raise CancelledException("Operation cancelled.")
 
     try:
         with atomic_output_path(output) as temporary:
@@ -68,7 +68,7 @@ def convert_pdf_to_word(
                 cv = Converter(str(source))
 
                 if status_callback:
-                    status_callback("Metin ve tablolar ayrıştırılıyor...")
+                    status_callback("Extracting text and tables...")
                 if progress_callback:
                     progress_callback(30)
 
@@ -82,22 +82,22 @@ def convert_pdf_to_word(
 
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("İşlem iptal edildi.")
+                raise CancelledException("Operation cancelled.")
 
     except Exception as exc:
         from core.worker import CancelledException
         if isinstance(exc, CancelledException):
             raise
         raise RuntimeError(
-            f"Dönüşüm başarısız oldu. PDF korumalı veya bozuk olabilir.\n\nTeknik detay: {exc}"
+            f"Conversion failed. The PDF may be protected or corrupt.\n\nTechnical details: {exc}"
         ) from exc
 
     if not output.exists():
-        raise RuntimeError("Word belgesi oluşturulamadı.")
+        raise RuntimeError("The Word document could not be created.")
 
     if progress_callback:
         progress_callback(100)
     if status_callback:
-        status_callback(f"Tamamlandı! → {output.name}")
+        status_callback(f"Complete! → {output.name}")
 
     return str(output)

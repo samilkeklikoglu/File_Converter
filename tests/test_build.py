@@ -42,7 +42,7 @@ class BuildScriptTests(unittest.TestCase):
                 patch.object(build, "_ensure_pyinstaller"),
                 patch.object(build, "_clean_previous_builds"),
                 patch.object(build.subprocess, "check_call"),
-                self.assertRaisesRegex(RuntimeError, "oluşturulamadı"),
+                self.assertRaisesRegex(RuntimeError, "was not created"),
             ):
                 build.build_app()
 

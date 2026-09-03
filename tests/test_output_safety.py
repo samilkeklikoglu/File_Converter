@@ -88,7 +88,7 @@ class OutputSafetyTests(unittest.TestCase):
     def test_pdf_to_image_validates_format_and_dpi(self):
         source = self.root / "source.pdf"
         source.write_bytes(b"fixture")
-        with self.assertRaisesRegex(ValueError, "formatı"):
+        with self.assertRaisesRegex(ValueError, "output format"):
             convert_pdf_to_images(str(source), str(self.root / "out"), "BMP")
         with self.assertRaisesRegex(ValueError, "DPI"):
             convert_pdf_to_images(str(source), str(self.root / "out"), "PNG", 0)

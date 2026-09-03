@@ -1,37 +1,36 @@
 # FileConverter
 
-**Sürüm:** 2.0.0
+**Version:** 2.0.0
 
-**Lisans:** GNU Affero General Public License v3.0 (`AGPL-3.0-only`)
+**License:** GNU Affero General Public License v3.0 (`AGPL-3.0-only`)
 
-FileConverter; resim, PDF ve Word belgeleri için sık kullanılan dönüşümleri tek
-bir PySide6 masaüstü arayüzünde toplayan bir dosya dönüştürme uygulamasıdır.
-Dosyalar seçilebilir veya sürükle-bırak ile eklenebilir; desteklenen klasörler
-alt dizinleriyle birlikte taranır.
+FileConverter is a desktop application that brings common image, PDF, and Word
+conversion tasks into one clear PySide6 interface. Add files with the file picker
+or drag and drop an entire folder; supported files in subdirectories are discovered
+automatically.
 
-## Desteklenen dönüşümler
+## Supported conversions
 
-| Kaynak | Hedef / işlem | Açıklama |
+| Source | Target / operation | Notes |
 |---|---|---|
-| JPG, JPEG, PNG, WEBP, BMP, TIFF | PDF | Çoklu resim, A4/Letter/orijinal sayfa boyutu |
-| JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG, PNG, WEBP | Toplu format ve kalite dönüşümü |
-| DOC, DOCX | PDF | Microsoft Word üzerinden tekli/toplu dönüşüm |
-| Birden fazla PDF | PDF | Sıralı birleştirme |
-| PDF | PDF | Her sayfayı veya seçilen aralıkları ayırma |
-| PDF | PNG, JPG | 72/150/300/600 DPI sayfa render işlemi |
-| PDF | DOCX | Metin ve yerleşim odaklı Word dönüşümü |
+| JPG, JPEG, PNG, WEBP, BMP, TIFF | PDF | Multiple images with A4, Letter, or original page size |
+| JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG, PNG, WEBP | Batch format conversion with quality control |
+| DOC, DOCX | PDF | Single or batch conversion through Microsoft Word |
+| Multiple PDF files | PDF | Ordered merge |
+| PDF | PDF | Split every page or extract selected page ranges |
+| PDF | PNG, JPG | Render pages at 72, 150, 300, or 600 DPI |
+| PDF | DOCX | Text- and layout-oriented Word conversion |
 
-## Gereksinimler
+## Requirements
 
-- Python 3.12 veya üzeri
-- Windows ya da kısmi macOS desteği
-- Word → PDF için Microsoft Word
+- Python 3.12 or later
+- Windows, with partial macOS support
+- Microsoft Word for Word to PDF conversion
 
-PDF → Word işlemi OCR yapmaz. Taranmış belgelerde metinlerin düzenlenebilir hale
-gelmesi beklenmemelidir; karmaşık tablolar ve sayfa düzenleri yaklaşık sonuç
-verebilir.
+PDF to Word does not perform OCR. Scanned documents will not automatically become
+editable text, and complex tables or page layouts may be reconstructed approximately.
 
-## Kurulum ve çalıştırma
+## Install and run from source
 
 Windows PowerShell:
 
@@ -43,84 +42,81 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-## Testler
+## Tests
 
-Test paketi ek bağımlılık gerektirmeyen standart `unittest` altyapısını kullanır:
+The test suite uses Python's standard `unittest` framework and needs no additional
+test dependency:
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-Testler dosya algılama, PDF sayfa aralıkları, Word toplu dönüşüm davranışı,
-atomik çıktı güvenliği, worker yaşam döngüsü, kaynak kapatma, arka planda klasör
-tarama, açık kaynak yasal bildirimleri, yayın paketleri ve UI regresyonlarını kapsar.
-Mevcut paket 37 test içerir.
+The 37 tests cover file detection, PDF page ranges, Word batch behavior, atomic
+output safety, worker lifecycle, resource cleanup, background folder scanning,
+open-source notices, release packaging, and UI regressions.
 
-## Standalone EXE oluşturma
+## Build a standalone Windows executable
 
 ```powershell
 python -m pip install -r requirements-build.txt
 python build.py
 ```
 
-Çıktı `dist/FileConverter.exe` konumunda oluşturulur. Build scripti PyInstaller'ı
-aktif Python yorumlayıcısı üzerinden çalıştırır; sistem PATH ayarına bağımlı
-değildir. PDF → Word bağımlılıkları nedeniyle tek dosyalı EXE yaklaşık 168 MB'tır.
+The executable is created at `dist/FileConverter.exe`. The build script invokes
+PyInstaller through the active Python interpreter instead of depending on the system
+`PATH`. Because PDF to Word includes substantial native dependencies, the one-file
+executable is currently about 168 MB.
 
-## Windows installer
+## Build the Windows installer
 
-Önce standalone EXE'yi oluşturun, ardından Inno Setup 6 ile `installer.iss`
-dosyasını derleyin. Sonuç `dist/FileConverter-2.0.0-Setup.exe` olarak yazılır.
+Build the standalone executable first, then compile `installer.iss` with Inno Setup 6.
+The installer is written to `dist/FileConverter-2.0.0-Setup.exe`.
 
-Installer derlendikten sonra versioned portable ZIP ve SHA-256 dosyasını üretin:
+After compiling the installer, create the versioned portable ZIP and SHA-256 checksums:
 
 ```powershell
 python package_release.py
 ```
 
-2.0.0 launch doğrulamasında gerçek EXE başlangıcı, Microsoft Word üzerinden
-DOCX → PDF dönüşümü ve installer kurulum/çalıştırma/kaldırma akışı başarıyla
-test edilmiştir.
+The 2.0.0 release validation includes a real executable startup test, DOCX to PDF
+conversion through Microsoft Word, and full installer install/start/uninstall smoke tests.
 
-## İndirme
+## Download
 
-Windows kullanıcıları için önerilen paket GitHub Releases sayfasındaki
-`FileConverter-2.0.0-Setup.exe` dosyasıdır. Kurulumsuz kullanım için ayrıca portable
-ZIP paketi sağlanır:
+For Windows users, the recommended package is `FileConverter-2.0.0-Setup.exe` on the
+[GitHub Releases page](https://github.com/samilkeklikoglu/File_Converter/releases).
+A portable ZIP is also provided for installation-free use.
 
-<https://github.com/samilkeklikoglu/File_Converter/releases>
+## Privacy and licensing
 
-## Gizlilik ve lisans
+FileConverter processes conversions locally on your device. It does not upload files,
+telemetry, or usage data to a server. See [PRIVACY.md](PRIVACY.md) for details.
 
-FileConverter dönüşümleri cihaz üzerinde yerel olarak yapar; dosya, telemetri veya
-kullanım verisi bir sunucuya gönderilmez. Ayrıntılar için [PRIVACY.md](PRIVACY.md)
-dosyasına bakın.
+This project is open source under the GNU Affero General Public License v3.0. See
+[LICENSE](LICENSE) for the complete terms and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+for dependency notices. The corresponding source for each release is available from
+its Git tag.
 
-Bu proje GNU Affero General Public License v3.0 koşullarıyla açık kaynak olarak
-yayımlanır. Tam metin [LICENSE](LICENSE), bağımlılık bildirimleri ise
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dosyasındadır. Uygulamanın ilgili
-sürümüne ait karşılık gelen kaynak kodu GitHub sürüm etiketi üzerinden sunulur.
+## Known limitations
 
-## Bilinen sınırlamalar
+- Encrypted PDF files are not supported.
+- When multiple PDFs are selected, the interface shows only the merge action.
+- PDF to Word cannot be interrupted safely after conversion begins, so its cancel
+  button is disabled.
+- Only the active or first frame of multi-frame TIFF and animated WEBP files is converted.
+- Very large image batches may use substantial memory while creating a PDF.
+- The application and installer are not yet signed with a trusted code-signing
+  certificate, so Windows may show a SmartScreen warning on first launch.
 
-- Şifreli PDF dosyaları desteklenmez.
-- Çoklu PDF seçildiğinde arayüz yalnızca birleştirme aksiyonunu gösterir.
-- PDF → Word işlemi başladıktan sonra güvenli biçimde yarıda kesilemediği için bu
-  işlemde iptal butonu gösterilmez.
-- Çok sayfalı TIFF ve animasyonlu WEBP dosyalarında yalnızca aktif/ilk kare
-  dönüştürülür.
-- Çok büyük resim grupları PDF oluşturulurken yüksek bellek kullanabilir.
-- Uygulama ve installer henüz ticari kod imzalama sertifikasıyla imzalanmamıştır;
-  Windows ilk çalıştırmada SmartScreen uyarısı gösterebilir.
-
-## Proje yapısı
+## Project structure
 
 ```text
-core/                 Dönüşüm motorları ve arka plan worker'ı
-ui/                   PySide6 kullanıcı arayüzü
-tests/                Kalıcı regresyon ve birim testleri
-assets/               PNG kaynak ikon ve çok boyutlu Windows ICO
-main.py               Uygulama giriş noktası
-build.py              PyInstaller build akışı
-installer.iss         Inno Setup yapılandırması
+core/                 Conversion engines and background workers
+ui/                   PySide6 user interface
+tests/                Unit and regression tests
+assets/               Source PNG and multi-resolution Windows icon
+main.py               Application entry point
+build.py              PyInstaller build workflow
+installer.iss         Inno Setup configuration
+package_release.py    Portable ZIP and checksum generator
 ```

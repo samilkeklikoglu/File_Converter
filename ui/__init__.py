@@ -1,3 +1,3 @@
 # ui/__init__.py
-# Bu dosya ui/ klasörünü bir Python paketi yapar.
-# İçi boş olabilir; sadece varlığı yeterlidir.
+# This file marks ui/ as a Python package.
+# It can remain empty; only its presence is required.

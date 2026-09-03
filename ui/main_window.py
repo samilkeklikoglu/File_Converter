@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         self._build_ui()
 
     def _setup_window(self):
-        self.setWindowTitle("FileConverter — Akıllı Dosya Dönüştürücü")
+        self.setWindowTitle("FileConverter — Smart File Converter")
         self.setWindowIcon(_load_app_icon())
         self.setMinimumSize(940, 640)
         self.resize(1120, 760)
@@ -73,9 +73,9 @@ class MainWindow(QMainWindow):
 
         answer = QMessageBox.question(
             self,
-            "Dönüşüm devam ediyor",
-            "Devam eden işlem iptal edilip uygulama kapatılsın mı?\n\n"
-            "Oluşturulmakta olan geçici dosyalar güvenle temizlenecek.",
+            "Conversion in progress",
+            "Cancel the current operation and close the application?\n\n"
+            "Temporary files created by this operation will be removed safely.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         )
@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
             return
 
         self.setEnabled(False)
-        self.setWindowTitle("FileConverter — İşlem güvenle durduruluyor...")
+        self.setWindowTitle("FileConverter — Stopping safely...")
         if self.smart_panel.request_shutdown(self._finish_deferred_close):
             event.ignore()
         else:

@@ -62,7 +62,7 @@ class DropZone(QWidget):
         self.setAcceptDrops(True)
         self.setMinimumHeight(260)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setToolTip("Dosya veya klasör seçmek için tıklayın")
+        self.setToolTip("Click to select files or folders")
         self._build_ui()
         self._apply_state("normal")
 
@@ -98,7 +98,7 @@ class DropZone(QWidget):
         icon_inner.addWidget(self.icon_label)
 
         # Text content
-        self.main_label = QLabel("Dosyalarınızı buraya bırakın")
+        self.main_label = QLabel("Drop your files here")
         self.main_label.setObjectName("dropZoneMainLabel")
         self.main_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_label.setStyleSheet(
@@ -106,7 +106,7 @@ class DropZone(QWidget):
             "background: transparent; border: none;"
         )
 
-        self.sub_label = QLabel("Seçmek için bu alana tıklayabilir veya bir klasör bırakabilirsiniz")
+        self.sub_label = QLabel("Click this area to browse, or drop a folder")
         self.sub_label.setObjectName("dropZoneSubLabel")
         self.sub_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.sub_label.setStyleSheet(
@@ -148,11 +148,11 @@ class DropZone(QWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             paths, _ = QFileDialog.getOpenFileNames(
                 self,
-                "Dosya Seç",
+            "Select Files",
                 "",
-                "Desteklenen Dosyalar (*.jpg *.jpeg *.png *.webp *.bmp *.tiff *.tif "
+            "Supported Files (*.jpg *.jpeg *.png *.webp *.bmp *.tiff *.tif "
                 "*.docx *.doc *.pdf);;"
-                "Tüm Dosyalar (*.*)"
+            "All Files (*.*)"
             )
             if paths:
                 self.files_dropped.emit(paths)

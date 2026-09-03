@@ -22,8 +22,8 @@ class FileDetectorTests(unittest.TestCase):
         self.assertEqual(detect_type([]), "unsupported")
 
     def test_returns_localized_label(self):
-        self.assertEqual(get_type_label("image", 3), "3 resim tespit edildi")
-        self.assertEqual(get_type_label("pdf", 1), "1 PDF dosyası tespit edildi")
+        self.assertEqual(get_type_label("image", 3), "3 image files detected")
+        self.assertEqual(get_type_label("pdf", 1), "1 PDF file detected")
 
     def test_folder_expansion_is_filtered_deduplicated_and_sorted(self):
         with tempfile.TemporaryDirectory(prefix="fileconverter_scan_") as temp_dir:

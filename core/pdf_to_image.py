@@ -42,19 +42,19 @@ def convert_pdf_to_images(
         import pymupdf as fitz  # noqa: PLC0415
     except ImportError:
         raise ImportError(
-            "pymupdf kütüphanesi bulunamadı. "
-            "Lütfen 'pip install pymupdf' komutuyla yükleyin."
+            "The pymupdf package is not installed. "
+            "Install it with 'pip install pymupdf'."
         )
 
     source = Path(pdf_path)
     if not source.is_file():
-        raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+        raise FileNotFoundError(f"File not found: {source.name}")
 
     fmt_key = output_format.upper()
     if fmt_key not in {"PNG", "JPG", "JPEG"}:
-        raise ValueError("Çıktı formatı PNG veya JPG olmalıdır.")
+        raise ValueError("The output format must be PNG or JPG.")
     if not isinstance(dpi, int) or isinstance(dpi, bool) or not 36 <= dpi <= 1200:
-        raise ValueError("DPI değeri 36 ile 1200 arasında bir tam sayı olmalıdır.")
+        raise ValueError("DPI must be an integer between 36 and 1200.")
 
     output_folder = Path(output_dir)
     folder_existed = output_folder.exists()
@@ -66,19 +66,19 @@ def convert_pdf_to_images(
         doc = fitz.open(source)
     except Exception as exc:
         raise RuntimeError(
-            f"PDF dosyası açılamadı. Dosya bozuk olabilir.\n\nTeknik detay: {exc}"
+            f"The PDF could not be opened and may be corrupt.\n\nTechnical details: {exc}"
         ) from exc
 
     try:
         if doc.is_encrypted:
             raise RuntimeError(
-                f"'{source.name}' şifreli bir PDF dosyasıdır. "
-                "Şifreli PDF'ler resme dönüştürülemez."
+                f"'{source.name}' is an encrypted PDF. "
+                "Encrypted PDFs cannot be converted to images."
             )
 
         total_pages = len(doc)
         if total_pages == 0:
-            raise RuntimeError("PDF dosyası boş.")
+            raise RuntimeError("The PDF is empty.")
 
         fmt = "JPEG" if fmt_key in {"JPG", "JPEG"} else "PNG"
         ext = ".jpg" if fmt == "JPEG" else ".png"
@@ -90,11 +90,11 @@ def convert_pdf_to_images(
         existing = next((path for path in output_paths if path.exists()), None)
         if existing:
             raise FileExistsError(
-                f"'{existing.name}' zaten mevcut. Lütfen boş bir çıktı klasörü seçin."
+                f"'{existing.name}' already exists. Choose an empty output folder."
             )
 
         if status_callback:
-            status_callback(f"Sayfalar işleniyor... (Toplam {total_pages} sayfa)")
+            status_callback(f"Processing pages... ({total_pages} total)")
         if progress_callback:
             progress_callback(5)
 
@@ -102,19 +102,19 @@ def convert_pdf_to_images(
         for i, page in enumerate(doc):
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("İşlem iptal edildi.")
+                raise CancelledException("Operation cancelled.")
 
             page_num = i + 1
             out_path = output_paths[i]
             if status_callback:
-                status_callback(f"Dönüştürülüyor: Sayfa {page_num}/{total_pages}")
+                status_callback(f"Converting: Page {page_num}/{total_pages}")
 
             pix = page.get_pixmap(matrix=mat)
             with atomic_output_path(out_path) as temporary:
                 pix.save(str(temporary))
                 if cancel_check and cancel_check():
                     from core.worker import CancelledException
-                    raise CancelledException("İşlem iptal edildi.")
+                    raise CancelledException("Operation cancelled.")
             created_files.append(out_path)
 
             if progress_callback:
@@ -123,7 +123,7 @@ def convert_pdf_to_images(
         if progress_callback:
             progress_callback(100)
         if status_callback:
-            status_callback(f"Tamamlandı! {total_pages} sayfa resim olarak kaydedildi.")
+            status_callback(f"Complete! {total_pages} pages saved as images.")
     except Exception:
         cleanup_created_files(created_files)
         if not folder_existed:

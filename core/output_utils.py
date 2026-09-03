@@ -23,7 +23,7 @@ def atomic_output_path(target: Path) -> Iterator[Path]:
         yield temporary
 
         if not temporary.exists() or temporary.stat().st_size == 0:
-            raise RuntimeError(f"'{target.name}' için geçerli bir çıktı oluşturulamadı.")
+            raise RuntimeError(f"A valid output could not be created for '{target.name}'.")
         temporary.replace(target)
     finally:
         if temporary and temporary.exists():

@@ -130,7 +130,7 @@ class FileListItemWidget(QWidget):
         self.del_btn = QPushButton()
         self.del_btn.setFixedSize(26, 26)
         self.del_btn.setIcon(qta.icon("fa5s.times", color="#8b98ae"))
-        self.del_btn.setToolTip(f"{p.name} dosyasını listeden kaldır")
+        self.del_btn.setToolTip(f"Remove {p.name} from the list")
         self.del_btn.setStyleSheet(
             "QPushButton { min-height: 0; padding: 0; background: transparent; border: none; border-radius: 6px; }"
             "QPushButton:hover { background: #382027; }"
@@ -219,7 +219,7 @@ class SmartPanel(QWidget):
 
         title = QLabel("FileConverter")
         title.setObjectName("titleLabel")
-        sub = QLabel("Dosyalarınız için hızlı ve güvenli dönüşüm merkezi")
+        sub = QLabel("Fast, secure file conversion on your device")
         sub.setObjectName("subtitleLabel")
 
         title_col.addWidget(title)
@@ -241,7 +241,7 @@ class SmartPanel(QWidget):
         privacy_icon = QLabel()
         privacy_icon.setStyleSheet("background: transparent; border: none;")
         privacy_icon.setPixmap(qta.icon("fa5s.shield-alt", color="#48d6b0").pixmap(14, 14))
-        privacy_text = QLabel("Dosyalar cihazınızda işlenir")
+        privacy_text = QLabel("Files stay on your device")
         privacy_text.setStyleSheet(
             "background: transparent; border: none; color: #9fe8d5; font-size: 11px; font-weight: 600;"
         )
@@ -249,9 +249,9 @@ class SmartPanel(QWidget):
         privacy_layout.addWidget(privacy_text)
         layout.addWidget(privacy)
 
-        self.about_btn = QPushButton("Hakkında")
+        self.about_btn = QPushButton("About")
         self.about_btn.setIcon(qta.icon("fa5s.info-circle", color="#a9b6cc"))
-        self.about_btn.setToolTip("Lisans, garanti ve kaynak kodu bilgileri")
+        self.about_btn.setToolTip("License, warranty, and source code information")
         self.about_btn.setStyleSheet(
             "QPushButton { min-height: 34px; padding: 0 12px; background: #162036;"
             "border: 1px solid #2a3650; border-radius: 9px; color: #c7d2e5; }"
@@ -266,17 +266,17 @@ class SmartPanel(QWidget):
         """Display the legal notices required by the application license."""
         message = QMessageBox(self)
         message.setIcon(QMessageBox.Icon.Information)
-        message.setWindowTitle(f"{APP_NAME} Hakkında")
+        message.setWindowTitle(f"About {APP_NAME}")
         message.setTextFormat(Qt.TextFormat.RichText)
         message.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
         message.setText(
             f"<h3>{APP_NAME} {APP_VERSION}</h3>"
-            "<p>Dosyalarınızı cihazınızda işleyen açık kaynak dönüşüm aracı.</p>"
+            "<p>An open-source converter that processes files on your device.</p>"
             f"<p>{COPYRIGHT}</p>"
-            f"<p><b>Lisans:</b> {LICENSE_ID}<br>"
-            "Bu program hiçbir garanti verilmeden dağıtılır. Lisans koşulları altında "
-            "kaynak kodunu inceleyebilir, değiştirebilir ve yeniden dağıtabilirsiniz.</p>"
-            f"<p><a href='{SOURCE_URL}'>Kaynak kodu, lisans ve üçüncü taraf bildirimleri</a></p>"
+            f"<p><b>License:</b> {LICENSE_ID}<br>"
+            "This program is distributed without any warranty. Under the license terms, "
+            "you may inspect, modify, and redistribute its source code.</p>"
+            f"<p><a href='{SOURCE_URL}'>Source code, license, and third-party notices</a></p>"
         )
         message.exec()
 
@@ -290,13 +290,13 @@ class SmartPanel(QWidget):
 
         intro = QVBoxLayout()
         intro.setSpacing(6)
-        eyebrow = QLabel("1  ·  DOSYALARINIZI EKLEYİN")
+        eyebrow = QLabel("1  ·  ADD YOUR FILES")
         eyebrow.setObjectName("eyebrowLabel")
-        heading = QLabel("Ne dönüştürmek istiyorsunuz?")
+        heading = QLabel("What would you like to convert?")
         heading.setObjectName("titleLabel")
         heading.setStyleSheet("font-size: 26px; font-weight: 700; color: #f8fafc;")
         description = QLabel(
-            "Dosya türünü otomatik tanırız ve yalnızca kullanılabilir dönüşüm seçeneklerini gösteririz."
+            "File types are detected automatically, so you only see compatible conversion options."
         )
         description.setObjectName("subtitleLabel")
         description.setWordWrap(True)
@@ -311,11 +311,11 @@ class SmartPanel(QWidget):
         )
         layout.addWidget(self.drop_zone)
 
-        browse_btn = QPushButton("Bilgisayardan dosya seç")
+        browse_btn = QPushButton("Choose files")
         browse_btn.setObjectName("primaryBtn")
         browse_btn.setIcon(qta.icon("fa5s.folder-open", color="#ffffff"))
         browse_btn.setFixedWidth(220)
-        browse_btn.setToolTip("Bir veya birden fazla dosya seçin")
+        browse_btn.setToolTip("Select one or more files from your computer")
         browse_btn.clicked.connect(self._open_file_dialog)
 
         btn_wrapper = QHBoxLayout()
@@ -325,7 +325,7 @@ class SmartPanel(QWidget):
         layout.addLayout(btn_wrapper)
 
         support = QLabel(
-            "PDF birleştirme ve bölme   •   Resim ↔ PDF   •   PDF → Word   •   Word → PDF"
+            "Merge and split PDF   •   Image ↔ PDF   •   PDF → Word   •   Word → PDF"
         )
         support.setAlignment(Qt.AlignmentFlag.AlignCenter)
         support.setStyleSheet("color: #73819a; font-size: 11px;")
@@ -341,12 +341,12 @@ class SmartPanel(QWidget):
 
         top_row = QHBoxLayout()
         top_row.setSpacing(10)
-        step_label = QLabel("2  ·  İŞLEMİ SEÇİN")
+        step_label = QLabel("2  ·  CHOOSE AN ACTION")
         step_label.setObjectName("eyebrowLabel")
-        self.reset_btn = QPushButton("Başa dön")
+        self.reset_btn = QPushButton("Start over")
         self.reset_btn.setIcon(qta.icon("fa5s.arrow-left", color="#a8b5cb"))
         self.reset_btn.setFixedWidth(112)
-        self.reset_btn.setToolTip("Seçili dosyaları temizleyip başlangıca dön")
+        self.reset_btn.setToolTip("Clear the selected files and return to the start")
         self.reset_btn.clicked.connect(self._reset_to_empty)
         top_row.addWidget(step_label)
         top_row.addStretch()
@@ -401,14 +401,14 @@ class SmartPanel(QWidget):
         files_layout.setSpacing(11)
 
         list_header = QHBoxLayout()
-        files_lbl = QLabel("Seçilen dosyalar")
+        files_lbl = QLabel("Selected files")
         files_lbl.setObjectName("sectionLabel")
         self.file_count_label = QLabel()
         self.file_count_label.setStyleSheet("color: #72809a; font-size: 11px;")
-        self.add_more_btn = QPushButton("Dosya ekle")
+        self.add_more_btn = QPushButton("Add files")
         self.add_more_btn.setIcon(qta.icon("fa5s.plus", color="#b7c5de"))
         self.add_more_btn.setFixedWidth(112)
-        self.add_more_btn.setToolTip("Listeye aynı türde başka dosyalar ekleyin")
+        self.add_more_btn.setToolTip("Add more files of the same type")
         self.add_more_btn.clicked.connect(self._open_file_dialog_addmore)
         list_header.addWidget(files_lbl)
         list_header.addWidget(self.file_count_label)
@@ -426,10 +426,10 @@ class SmartPanel(QWidget):
         self.file_list.setDropIndicatorShown(True)
         self.file_list.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.file_list.setDefaultDropAction(Qt.DropAction.MoveAction)
-        self.file_list.setToolTip("Birleştirme sırasını değiştirmek için dosyaları sürükleyin")
+        self.file_list.setToolTip("Drag files to change their merge order")
         files_layout.addWidget(self.file_list, stretch=1)
 
-        order_hint = QLabel("PDF birleştirirken listedeki sıra kullanılır.")
+        order_hint = QLabel("PDFs are merged in the order shown here.")
         order_hint.setStyleSheet("color: #67758d; font-size: 10px;")
         order_hint.setWordWrap(True)
         files_layout.addWidget(order_hint)
@@ -444,9 +444,9 @@ class SmartPanel(QWidget):
         action_layout.setContentsMargins(18, 16, 18, 16)
         action_layout.setSpacing(10)
 
-        action_lbl = QLabel("Uygun dönüşümler")
+        action_lbl = QLabel("Available conversions")
         action_lbl.setObjectName("sectionLabel")
-        action_description = QLabel("Bir işlem seçin; çıktı konumunu başlamadan önce soracağız.")
+        action_description = QLabel("Choose an action; you will select the output location before it starts.")
         action_description.setWordWrap(True)
         action_description.setStyleSheet("color: #7e8ca5; font-size: 11px;")
         action_layout.addWidget(action_lbl)
@@ -520,20 +520,20 @@ class SmartPanel(QWidget):
         layout.setSpacing(12)
 
         pdf_card, pdf_layout = self._make_action_card(
-            "Tek PDF oluştur", "Resimleri seçtiğiniz sırayla tek belgede birleştirir.", "fa5s.file-pdf", "#ff9696"
+            "Create one PDF", "Combines images into one document in the selected order.", "fa5s.file-pdf", "#ff9696"
         )
         pdf_row = QHBoxLayout()
         pdf_row.setSpacing(8)
-        page_lbl = QLabel("Sayfa boyutu")
+        page_lbl = QLabel("Page size")
         page_lbl.setStyleSheet("color: #9aa8c0; font-size: 11px; font-weight: 600;")
 
         self.img_page_combo = QComboBox()
         for size in img_converter.PAPER_SIZES_96DPI.keys():
             self.img_page_combo.addItem(size)
         self.img_page_combo.setCurrentText("A4")
-        self.img_page_combo.setToolTip("PDF sayfalarının boyutu")
+        self.img_page_combo.setToolTip("PDF page size")
 
-        self.img_to_pdf_btn = QPushButton("PDF oluştur")
+        self.img_to_pdf_btn = QPushButton("Create PDF")
         self.img_to_pdf_btn.setObjectName("primaryBtn")
         self.img_to_pdf_btn.setIcon(qta.icon("fa5s.file-pdf", color="#ffffff"))
         self.img_to_pdf_btn.clicked.connect(self._start_image_to_pdf)
@@ -545,7 +545,7 @@ class SmartPanel(QWidget):
         layout.addWidget(pdf_card)
 
         format_card, format_layout = self._make_action_card(
-            "Resim formatını değiştir", "JPG, PNG veya WEBP çıktısı üretir.", "fa5s.images"
+            "Change image format", "Creates JPG, PNG, or WEBP files.", "fa5s.images"
         )
         fmt_row = QHBoxLayout()
         fmt_row.setSpacing(8)
@@ -555,7 +555,7 @@ class SmartPanel(QWidget):
             self.img_fmt_combo.addItem(fmt)
         self.img_fmt_combo.currentTextChanged.connect(self._on_img_fmt_changed)
 
-        quality_lbl = QLabel("Kalite")
+        quality_lbl = QLabel("Quality")
         quality_lbl.setStyleSheet("color: #9aa8c0; font-size: 11px; font-weight: 600;")
 
         self.img_quality_slider = QSlider(Qt.Orientation.Horizontal)
@@ -572,7 +572,7 @@ class SmartPanel(QWidget):
             lambda v: self.img_quality_label.setText(str(v))
         )
 
-        self.img_convert_fmt_btn = QPushButton("Dönüştür")
+        self.img_convert_fmt_btn = QPushButton("Convert")
         self.img_convert_fmt_btn.setIcon(qta.icon("fa5s.exchange-alt", color="#b8c5da"))
         self.img_convert_fmt_btn.clicked.connect(self._start_image_convert)
 
@@ -596,12 +596,12 @@ class SmartPanel(QWidget):
         layout.setSpacing(12)
 
         if sys.platform == "win32":
-            warn_text = "Bu işlem için bilgisayarınızda Microsoft Word kurulu olmalıdır."
+            warn_text = "Microsoft Word must be installed on this computer for this operation."
             warn_bg = "#132137"
             warn_fg = "#a9b8d1"
             warn_border = "#2c4265"
         else:
-            warn_text = "Word → PDF dönüşümü yalnızca Windows ve macOS'ta kullanılabilir."
+            warn_text = "Word to PDF conversion is available only on Windows and macOS."
             warn_bg = "#28191a"
             warn_fg = "#f1a7a7"
             warn_border = "#573032"
@@ -615,11 +615,11 @@ class SmartPanel(QWidget):
         )
 
         card, card_layout = self._make_action_card(
-            "PDF belgesi oluştur", "Her Word dosyası ayrı bir PDF olarak kaydedilir.",
+            "Create PDF documents", "Each Word document is saved as a separate PDF.",
             "fa5s.file-pdf", "#ff9696"
         )
         card_layout.addWidget(warn)
-        self.word_to_pdf_btn = QPushButton("PDF'e dönüştür")
+        self.word_to_pdf_btn = QPushButton("Convert to PDF")
         self.word_to_pdf_btn.setObjectName("primaryBtn")
         self.word_to_pdf_btn.setIcon(qta.icon("fa5s.file-pdf", color="#ffffff"))
         self.word_to_pdf_btn.clicked.connect(self._start_word_to_pdf)
@@ -638,21 +638,21 @@ class SmartPanel(QWidget):
         layout.setSpacing(9)
 
         split_card, split_layout = self._make_action_card(
-            "PDF'i böl", "Tüm sayfaları veya belirli aralıkları ayrı PDF'ler olarak çıkarır.",
+            "Split PDF", "Extract all pages or selected ranges as separate PDFs.",
             "fa5s.cut", "#f3c96b"
         )
         split_row = QHBoxLayout()
         split_row.setSpacing(8)
 
-        self.pdf_split_all_btn = QPushButton("Her sayfayı ayır")
+        self.pdf_split_all_btn = QPushButton("Split every page")
         self.pdf_split_all_btn.setIcon(qta.icon("fa5s.copy", color="#b8c5da"))
         self.pdf_split_all_btn.clicked.connect(self._start_pdf_split_all)
 
         self.pdf_range_input = QLineEdit()
-        self.pdf_range_input.setPlaceholderText("Örn. 1-3, 5, 8-10")
-        self.pdf_range_input.setToolTip("Virgülle ayırarak birden fazla sayfa veya aralık girebilirsiniz")
+        self.pdf_range_input.setPlaceholderText("Example: 1-3, 5, 8-10")
+        self.pdf_range_input.setToolTip("Enter multiple pages or ranges separated by commas")
 
-        self.pdf_split_range_btn = QPushButton("Aralığı ayır")
+        self.pdf_split_range_btn = QPushButton("Split range")
         self.pdf_split_range_btn.setIcon(qta.icon("fa5s.cut", color="#b8c5da"))
         self.pdf_split_range_btn.setFixedWidth(118)
         self.pdf_split_range_btn.clicked.connect(self._start_pdf_split_ranges)
@@ -664,7 +664,7 @@ class SmartPanel(QWidget):
         layout.addWidget(split_card)
 
         image_card, image_layout = self._make_action_card(
-            "Sayfaları görsele çevir", "Her PDF sayfasını ayrı bir PNG veya JPG dosyası olarak kaydeder.",
+            "Convert pages to images", "Saves every PDF page as a separate PNG or JPG file.",
             "fa5s.images", "#8da5ff"
         )
         img_row = QHBoxLayout()
@@ -678,9 +678,9 @@ class SmartPanel(QWidget):
         self.pdf_img_dpi_combo.addItems(["72 DPI", "150 DPI", "300 DPI", "600 DPI"])
         self.pdf_img_dpi_combo.setCurrentText("150 DPI")
         self.pdf_img_dpi_combo.setFixedWidth(96)
-        self.pdf_img_dpi_combo.setToolTip("Daha yüksek DPI daha kaliteli ve daha büyük dosya üretir")
+        self.pdf_img_dpi_combo.setToolTip("Higher DPI creates sharper, larger files")
 
-        self.pdf_to_img_btn = QPushButton("Görselleri oluştur")
+        self.pdf_to_img_btn = QPushButton("Create images")
         self.pdf_to_img_btn.setObjectName("primaryBtn")
         self.pdf_to_img_btn.setIcon(qta.icon("fa5s.images", color="#ffffff"))
         self.pdf_to_img_btn.clicked.connect(self._start_pdf_to_image)
@@ -692,10 +692,10 @@ class SmartPanel(QWidget):
         layout.addWidget(image_card)
 
         word_card, word_layout = self._make_action_card(
-            "Düzenlenebilir Word belgesi oluştur", "Metin ve tabloları mümkün olduğunca DOCX düzenine aktarır.",
+            "Create an editable Word document", "Reconstructs text and tables in a DOCX layout where possible.",
             "fa5s.file-word", "#79adff"
         )
-        self.pdf_to_word_btn = QPushButton("Word belgesi oluştur (.docx)")
+        self.pdf_to_word_btn = QPushButton("Create Word document (.docx)")
         self.pdf_to_word_btn.setIcon(qta.icon("fa5s.file-word", color="#ffffff"))
         self.pdf_to_word_btn.clicked.connect(self._start_pdf_to_word)
         word_layout.addWidget(self.pdf_to_word_btn)
@@ -713,26 +713,26 @@ class SmartPanel(QWidget):
         layout.setSpacing(12)
 
         card, card_layout = self._make_action_card(
-            "PDF dosyalarını birleştir",
-            "Dosyalar soldaki sıraya göre tek bir PDF içinde birleştirilir.",
+            "Merge PDF files",
+            "Combines the files into one PDF in the order shown on the left.",
             "fa5s.object-group", "#ff9696"
         )
         row = QHBoxLayout()
         row.setSpacing(8)
 
-        self.pdf_output_label = QLabel("Henüz çıktı dosyası seçilmedi")
+        self.pdf_output_label = QLabel("No output file selected")
         self.pdf_output_label.setStyleSheet(
             "color: #8391aa; font-size: 11px; border: 1px solid #2a3650;"
             "background: #0f1729; padding: 10px 12px; border-radius: 8px;"
         )
         self.pdf_output_label.setWordWrap(True)
 
-        choose_btn = QPushButton("Çıktı seç")
+        choose_btn = QPushButton("Choose output")
         choose_btn.setIcon(qta.icon("fa5s.folder-open", color="#b8c5da"))
         choose_btn.setFixedWidth(120)
         choose_btn.clicked.connect(self._choose_pdf_output)
 
-        self.pdf_merge_btn = QPushButton("PDF'leri birleştir")
+        self.pdf_merge_btn = QPushButton("Merge PDFs")
         self.pdf_merge_btn.setObjectName("primaryBtn")
         self.pdf_merge_btn.setIcon(qta.icon("fa5s.object-group", color="#ffffff"))
         self.pdf_merge_btn.setEnabled(False)
@@ -756,8 +756,8 @@ class SmartPanel(QWidget):
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         warn = QLabel(
-            "⚠️  Aynı tipte dosyalar seçin\n"
-            "Resimler, Word belgeleri ve PDF'leri ayrı ayrı ekleyip dönüştürebilirsiniz."
+            "⚠️  Select files of the same type\n"
+            "Add and convert images, Word documents, and PDFs separately."
         )
         warn.setAlignment(Qt.AlignmentFlag.AlignCenter)
         warn.setWordWrap(True)
@@ -778,8 +778,8 @@ class SmartPanel(QWidget):
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         warn = QLabel(
-            "✗  Desteklenmeyen dosya formatı\n"
-            "Kabul edilenler: JPG · PNG · WEBP · BMP · TIFF · DOCX · DOC · PDF"
+            "✗  Unsupported file format\n"
+            "Accepted formats: JPG · PNG · WEBP · BMP · TIFF · DOCX · DOC · PDF"
         )
         warn.setAlignment(Qt.AlignmentFlag.AlignCenter)
         warn.setWordWrap(True)
@@ -799,16 +799,16 @@ class SmartPanel(QWidget):
         layout.setContentsMargins(80, 34, 80, 34)
         layout.setSpacing(14)
 
-        step_label = QLabel("3  ·  DÖNÜŞÜM DURUMU")
+        step_label = QLabel("3  ·  CONVERSION STATUS")
         step_label.setObjectName("eyebrowLabel")
         layout.addWidget(step_label)
 
-        heading = QLabel("Dosyanız hazırlanıyor")
+        heading = QLabel("Preparing your files")
         heading.setObjectName("titleLabel")
         heading.setStyleSheet("font-size: 25px; font-weight: 700; color: #f8fafc;")
         layout.addWidget(heading)
 
-        description = QLabel("Bu pencereyi açık tutun. İşlem tamamlandığında çıktı klasörünü doğrudan açabilirsiniz.")
+        description = QLabel("Keep this window open. When processing is complete, you can open the output folder directly.")
         description.setObjectName("subtitleLabel")
         description.setWordWrap(True)
         layout.addWidget(description)
@@ -885,11 +885,11 @@ class SmartPanel(QWidget):
     def _open_file_dialog(self):
         paths, _ = QFileDialog.getOpenFileNames(
             self,
-            "Dosya Seç",
+            "Select Files",
             "",
-            "Desteklenen Dosyalar (*.jpg *.jpeg *.png *.webp *.bmp *.tiff *.tif "
+            "Supported Files (*.jpg *.jpeg *.png *.webp *.bmp *.tiff *.tif "
             "*.docx *.doc *.pdf);;"
-            "Tüm Dosyalar (*.*)"
+            "All Files (*.*)"
         )
         if paths:
             self._set_files(paths)
@@ -897,11 +897,11 @@ class SmartPanel(QWidget):
     def _open_file_dialog_addmore(self):
         paths, _ = QFileDialog.getOpenFileNames(
             self,
-            "Dosya Ekle",
+            "Add Files",
             "",
-            "Desteklenen Dosyalar (*.jpg *.jpeg *.png *.webp *.bmp *.tiff *.tif "
+            "Supported Files (*.jpg *.jpeg *.png *.webp *.bmp *.tiff *.tif "
             "*.docx *.doc *.pdf);;"
-            "Tüm Dosyalar (*.*)"
+            "All Files (*.*)"
         )
         if paths:
             self._add_more_files(paths)
@@ -919,16 +919,16 @@ class SmartPanel(QWidget):
     def _start_folder_scan(self, paths: list[str], append: bool):
         if self._scan_worker and self._scan_worker.isRunning():
             QMessageBox.information(
-                self, "Tarama devam ediyor", "Mevcut klasör taramasının tamamlanmasını bekleyin."
+                self, "Scan in progress", "Wait for the current folder scan to finish."
             )
             return
 
         self._scan_append = append
-        self.progress_op_label.setText("Klasör taranıyor")
+        self.progress_op_label.setText("Scanning folders")
         self.progress_file_label.setText(
-            f"{len(paths)} konumda desteklenen dosyalar aranıyor"
+            f"Searching {len(paths)} locations for supported files"
         )
-        self.progress_widget.start_indeterminate("Dosyalar bulunuyor...", cancellable=True)
+        self.progress_widget.start_indeterminate("Finding files...", cancellable=True)
         self.stack.setCurrentIndex(SCENE_PROGRESS)
 
         worker = PathScanWorker(paths, self)
@@ -941,12 +941,12 @@ class SmartPanel(QWidget):
 
     def _on_folder_scan_completed(self, paths: list[str]):
         if not paths:
-            self.progress_widget.set_error("Klasörde desteklenen dosya bulunamadı.")
+            self.progress_widget.set_error("No supported files were found in the folder.")
             return
         self._apply_scanned_paths(paths, self._scan_append)
 
     def _on_folder_scan_error(self, message: str):
-        self.progress_widget.set_error(f"Klasör taranamadı: {message}")
+        self.progress_widget.set_error(f"Could not scan the folder: {message}")
 
     def _on_folder_scan_cancelled(self):
         if self._scan_append and self._current_paths:
@@ -1031,7 +1031,7 @@ class SmartPanel(QWidget):
             f"{'  '.join(Path(p).name for p in paths[:3])}"
             + (" ..." if count > 3 else "")
         )
-        self.file_count_label.setText(f"{count} öğe")
+        self.file_count_label.setText(f"{count} items")
 
     def _update_action_stack(self, file_type: str, count: int):
         page_map = {
@@ -1051,7 +1051,7 @@ class SmartPanel(QWidget):
         self._current_paths = []
         self._pdf_output_path = None
         self.file_list.clear()
-        self.pdf_output_label.setText("Henüz çıktı dosyası seçilmedi")
+        self.pdf_output_label.setText("No output file selected")
         self.pdf_output_label.setStyleSheet(
             "color: #8391aa; font-size: 11px; border: 1px solid #2a3650;"
             "background: #0f1729; padding: 10px 12px; border-radius: 8px;"
@@ -1065,7 +1065,7 @@ class SmartPanel(QWidget):
     # ── Helpers ───────────────────────────────────────────────────────────────
 
     def _get_unique_path(self, base_path: Path) -> Path:
-        """Eğer dosya veya klasör zaten varsa, sonuna _1, _2 gibi ekler koyarak benzersiz bir yol üretir."""
+        """Return a unique path by adding _1, _2, and so on when needed."""
         if not base_path.exists():
             return base_path
 
@@ -1085,16 +1085,16 @@ class SmartPanel(QWidget):
     def _choose_pdf_output(self):
         path, _ = QFileDialog.getSaveFileName(
             self,
-            "Birleştirilmiş PDF'i Kaydet",
-            "birlestirilmis.pdf",
-            "PDF Dosyası (*.pdf)"
+            "Save Merged PDF",
+            "merged.pdf",
+            "PDF File (*.pdf)"
         )
         if path:
             if not path.lower().endswith(".pdf"):
                 path += ".pdf"
             self._pdf_output_path = path
             short = Path(path).name
-            self.pdf_output_label.setText(f"Hazır: {short}")
+            self.pdf_output_label.setText(f"Ready: {short}")
             self.pdf_output_label.setStyleSheet(
                 "color: #9fe8d5; font-size: 11px; border: 1px solid #245047;"
                 "background: #10231f; padding: 10px 12px; border-radius: 8px;"
@@ -1124,7 +1124,7 @@ class SmartPanel(QWidget):
             return
         pdf_path = paths[0]
 
-        selected_dir = QFileDialog.getExistingDirectory(self, "Çıktı Klasörünü Seç", str(Path(pdf_path).parent))
+        selected_dir = QFileDialog.getExistingDirectory(self, "Choose Output Folder", str(Path(pdf_path).parent))
         if not selected_dir:
             return
         output_dir = str(self._get_unique_path(Path(selected_dir) / "split_output"))
@@ -1133,7 +1133,7 @@ class SmartPanel(QWidget):
             func=pdf_splitter.split_pdf_by_pages,
             kwargs={'input_path': pdf_path, 'output_dir': output_dir},
         )
-        self._launch_worker(worker, op_label="PDF Bölme", paths=[pdf_path])
+        self._launch_worker(worker, op_label="Split PDF", paths=[pdf_path])
 
     def _start_pdf_split_ranges(self):
         self._update_paths_from_list()
@@ -1142,11 +1142,11 @@ class SmartPanel(QWidget):
             return
         range_str = self.pdf_range_input.text().strip()
         if not range_str:
-            QMessageBox.warning(self, "Aralık Girilmedi", "Lütfen bir sayfa aralığı girin.\nÖrnek: 1-3, 5, 7-9")
+            QMessageBox.warning(self, "Page Range Required", "Enter a page range.\nExample: 1-3, 5, 7-9")
             return
         pdf_path = paths[0]
 
-        selected_dir = QFileDialog.getExistingDirectory(self, "Çıktı Klasörünü Seç", str(Path(pdf_path).parent))
+        selected_dir = QFileDialog.getExistingDirectory(self, "Choose Output Folder", str(Path(pdf_path).parent))
         if not selected_dir:
             return
         output_dir = str(self._get_unique_path(Path(selected_dir) / "split_output"))
@@ -1159,7 +1159,7 @@ class SmartPanel(QWidget):
                 'range_str':  range_str,
             },
         )
-        self._launch_worker(worker, op_label="PDF Bölme (Aralık)", paths=[pdf_path])
+        self._launch_worker(worker, op_label="Split PDF (Range)", paths=[pdf_path])
 
     def _start_pdf_to_image(self):
         self._update_paths_from_list()
@@ -1168,7 +1168,7 @@ class SmartPanel(QWidget):
             return
         pdf_path = paths[0]
 
-        selected_dir = QFileDialog.getExistingDirectory(self, "Çıktı Klasörünü Seç", str(Path(pdf_path).parent))
+        selected_dir = QFileDialog.getExistingDirectory(self, "Choose Output Folder", str(Path(pdf_path).parent))
         if not selected_dir:
             return
         output_dir = str(self._get_unique_path(Path(selected_dir) / "pdf_pages"))
@@ -1190,7 +1190,7 @@ class SmartPanel(QWidget):
                 'dpi':           dpi,
             },
         )
-        self._launch_worker(worker, op_label=f"PDF → Görsel ({fmt}, {dpi} DPI)", paths=[pdf_path])
+        self._launch_worker(worker, op_label=f"PDF → Image ({fmt}, {dpi} DPI)", paths=[pdf_path])
 
     def _start_pdf_to_word(self):
         self._update_paths_from_list()
@@ -1199,7 +1199,7 @@ class SmartPanel(QWidget):
             return
         pdf_path = paths[0]
 
-        selected_dir = QFileDialog.getExistingDirectory(self, "Çıktı Klasörünü Seç", str(Path(pdf_path).parent))
+        selected_dir = QFileDialog.getExistingDirectory(self, "Choose Output Folder", str(Path(pdf_path).parent))
         if not selected_dir:
             return
         output_path = str(self._get_unique_path(Path(selected_dir) / (Path(pdf_path).stem + ".docx")))
@@ -1213,7 +1213,7 @@ class SmartPanel(QWidget):
         )
         self._launch_worker(
             worker,
-            op_label="PDF → Word Dönüşümü",
+            op_label="PDF → Word Conversion",
             paths=[pdf_path],
             cancellable=False,
         )
@@ -1224,7 +1224,7 @@ class SmartPanel(QWidget):
         if not paths:
             return
 
-        output_dir = QFileDialog.getExistingDirectory(self, "Çıktı Klasörünü Seç", str(Path(paths[0]).parent))
+        output_dir = QFileDialog.getExistingDirectory(self, "Choose Output Folder", str(Path(paths[0]).parent))
         if not output_dir:
             return
 
@@ -1239,7 +1239,7 @@ class SmartPanel(QWidget):
                 'quality':       quality,
             },
         )
-        self._launch_worker(worker, op_label=f"Format Dönüştürme → {fmt}", paths=paths)
+        self._launch_worker(worker, op_label=f"Format Conversion → {fmt}", paths=paths)
 
     def _start_image_to_pdf(self):
         self._update_paths_from_list()
@@ -1248,7 +1248,7 @@ class SmartPanel(QWidget):
             return
 
         source_dir = Path(paths[0]).parent
-        selected_dir = QFileDialog.getExistingDirectory(self, "Çıktı Klasörünü Seç", str(source_dir))
+        selected_dir = QFileDialog.getExistingDirectory(self, "Choose Output Folder", str(source_dir))
         if not selected_dir:
             return
 
@@ -1263,7 +1263,7 @@ class SmartPanel(QWidget):
                 'page_size':   page_size,
             }
         )
-        self._launch_worker(worker, op_label="Resim → PDF Dönüşümü", paths=paths)
+        self._launch_worker(worker, op_label="Image → PDF Conversion", paths=paths)
 
     def _start_word_to_pdf(self):
         self._update_paths_from_list()
@@ -1271,7 +1271,7 @@ class SmartPanel(QWidget):
         if not paths:
             return
 
-        output_dir = QFileDialog.getExistingDirectory(self, "Çıktı Klasörünü Seç", str(Path(paths[0]).parent))
+        output_dir = QFileDialog.getExistingDirectory(self, "Choose Output Folder", str(Path(paths[0]).parent))
         if not output_dir:
             return
 
@@ -1282,17 +1282,17 @@ class SmartPanel(QWidget):
                 'output_dir': output_dir,
             }
         )
-        self._launch_worker(worker, op_label="Word → PDF Dönüşümü", paths=paths)
+        self._launch_worker(worker, op_label="Word → PDF Conversion", paths=paths)
 
     def _start_pdf_merge(self):
         self._update_paths_from_list()
         paths = self._current_paths
         if len(paths) < 2:
-            QMessageBox.warning(self, "Yetersiz Dosya", "En az 2 PDF dosyası gerekli.")
+            QMessageBox.warning(self, "Not Enough Files", "At least two PDF files are required.")
             return
 
         if not self._pdf_output_path:
-            QMessageBox.warning(self, "Kayıt Konumu", "Lütfen kayıt konumu seçin.")
+            QMessageBox.warning(self, "Output Location", "Choose an output location.")
             return
 
         worker = ConversionWorker(
@@ -1302,7 +1302,7 @@ class SmartPanel(QWidget):
                 'output_path': self._pdf_output_path,
             }
         )
-        self._launch_worker(worker, op_label="PDF Birleştirme", paths=paths)
+        self._launch_worker(worker, op_label="Merge PDFs", paths=paths)
 
     def _launch_worker(
         self,
@@ -1317,7 +1317,7 @@ class SmartPanel(QWidget):
         count = len(paths)
         self.progress_op_label.setText(op_label)
         self.progress_file_label.setText(
-            f"{count} dosya işlenecek — "
+            f"{count} files to process — "
             f"{', '.join(Path(p).name for p in paths[:2])}"
             + (" ..." if count > 2 else "")
         )
@@ -1342,9 +1342,9 @@ class SmartPanel(QWidget):
         self.progress_widget.set_error(message)
         QMessageBox.warning(
             self,
-            "Dönüşüm Hatası",
-            f"İşlem sırasında bir sorun oluştu:\n\n{message}\n\n"
-            "Dosyaların bozuk olmadığını kontrol edin.",
+            "Conversion Error",
+            f"A problem occurred during conversion:\n\n{message}\n\n"
+            "Check that the source files are not corrupt.",
         )
 
     def _on_cancelled(self):

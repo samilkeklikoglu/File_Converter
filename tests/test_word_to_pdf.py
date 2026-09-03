@@ -58,11 +58,11 @@ class WordToPdfTests(unittest.TestCase):
         self.assertEqual(len(statuses), 3)
 
     def test_validates_inputs_before_conversion(self):
-        with self.assertRaisesRegex(ValueError, "seçilmedi"):
+        with self.assertRaisesRegex(ValueError, "No Word documents"):
             convert_word_to_pdf([], str(self.output))
 
         unsupported = self._source("notes.txt")
-        with self.assertRaisesRegex(ValueError, "Desteklenmeyen"):
+        with self.assertRaisesRegex(ValueError, "Unsupported"):
             convert_word_to_pdf([str(unsupported)], str(self.output))
 
         with self.assertRaises(FileNotFoundError):
@@ -78,7 +78,7 @@ class WordToPdfTests(unittest.TestCase):
         with (
             patch.dict(sys.modules, {"docx2pdf": fake_module}),
             patch("core.word_to_pdf.sys.platform", "win32"),
-            self.assertRaisesRegex(PermissionError, "erişilemiyor"),
+            self.assertRaisesRegex(PermissionError, "Cannot access"),
         ):
             convert_word_to_pdf([str(source)], str(self.output))
 

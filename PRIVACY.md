@@ -1,29 +1,27 @@
-# FileConverter Gizlilik Bildirimi
+# FileConverter Privacy Notice
 
-Son güncelleme: 3 Eylül 2026
+Last updated: September 3, 2026
 
-FileConverter dosya dönüşümlerini kullanıcının cihazında yerel olarak gerçekleştirir.
-Uygulama; seçilen belgeleri, dönüştürülen çıktıları veya kullanım bilgilerini herhangi
-bir sunucuya yüklemez.
+FileConverter performs file conversions locally on the user's device. The application
+does not upload selected documents, converted outputs, or usage information to any server.
 
-## Toplanan veriler
+## Data collection
 
-FileConverter tarafından kişisel veri, telemetri, analiz verisi veya çökme raporu
-toplanmaz.
+FileConverter does not collect personal data, telemetry, analytics, or crash reports.
 
-## Yerel dosyalara erişim
+## Local file access
 
-Uygulama yalnızca kullanıcının seçtiği dosyaları okur ve kullanıcının belirlediği
-konuma çıktı yazar. Word → PDF işlemi için cihazda kurulu Microsoft Word yerel olarak
-çalıştırılır. İşletim sisteminin, Microsoft Word'ün veya kullanıcının ayrıca yüklediği
-yazılımların kendi gizlilik koşulları FileConverter'ın kontrolü dışındadır.
+The application reads only the files selected by the user and writes results to a
+location chosen by the user. Microsoft Word is started locally for Word to PDF
+conversion. The privacy practices of the operating system, Microsoft Word, or other
+software installed by the user are outside FileConverter's control.
 
-## Ağ erişimi
+## Network access
 
-FileConverter dönüşüm yapmak için ağ bağlantısı kullanmaz. Güncelleme denetimi,
-reklam, kullanıcı hesabı veya bulut depolama özelliği içermez.
+FileConverter does not require a network connection for conversions. It contains no
+update checker, advertising, user accounts, or cloud storage integration.
 
-## Kaynak kodu
+## Source code
 
-Kaynak kodu ve sorun bildirimleri:
+Source code and issue tracking:
 <https://github.com/samilkeklikoglu/File_Converter>

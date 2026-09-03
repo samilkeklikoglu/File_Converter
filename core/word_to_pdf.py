@@ -1,5 +1,5 @@
 """
-core/word_to_pdf.py — Word → PDF Dönüşüm Motoru
+core/word_to_pdf.py — Word to PDF Conversion Engine
 
 Converts .docx / .doc files to PDF using Microsoft Word via the docx2pdf library.
 Requires Microsoft Word on Windows or macOS.
@@ -36,10 +36,10 @@ def _raise_conversion_error(source: Path, exc: Exception) -> None:
         or "permission denied" in lowered
     ):
         raise PermissionError(
-            f"'{source.name}' dosyasına erişilemiyor. "
-            "Dosya başka bir program tarafından açık olabilir. "
-            "Lütfen dosyayı kapatıp tekrar deneyin.\n\n"
-            f"Teknik detay: {error_msg}"
+            f"Cannot access '{source.name}'. "
+            "The file may be open in another application. "
+            "Close it and try again.\n\n"
+            f"Technical details: {error_msg}"
         ) from exc
 
     if any(
@@ -47,13 +47,13 @@ def _raise_conversion_error(source: Path, exc: Exception) -> None:
         for token in ("word", "com_error", "comtypes", "class not registered")
     ):
         raise RuntimeError(
-            "Microsoft Word bulunamadı veya başlatılamadı.\n"
-            "Word → PDF dönüşümü için Microsoft Word kurulu olmalıdır.\n\n"
-            f"Teknik detay: {error_msg}"
+            "Microsoft Word could not be found or started.\n"
+            "Microsoft Word must be installed for Word to PDF conversion.\n\n"
+            f"Technical details: {error_msg}"
         ) from exc
 
     raise RuntimeError(
-        f"'{source.name}' dönüştürülürken beklenmedik bir hata oluştu:\n{error_msg}"
+        f"An unexpected error occurred while converting '{source.name}':\n{error_msg}"
     ) from exc
 
 
@@ -83,30 +83,30 @@ def convert_word_to_pdf(
         RuntimeError:      If conversion fails.
     """
     if not input_paths:
-        raise ValueError("Dönüştürülecek Word belgesi seçilmedi.")
+        raise ValueError("No Word documents were selected for conversion.")
 
     sources = [Path(path) for path in input_paths]
     for source in sources:
         if not source.exists() or not source.is_file():
-            raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+            raise FileNotFoundError(f"File not found: {source.name}")
         if source.suffix.lower() not in WORD_EXTENSIONS:
             raise ValueError(
-                f"Desteklenmeyen dosya formatı: '{source.suffix}'. "
-                "Yalnızca .docx ve .doc dosyaları dönüştürülebilir."
+                f"Unsupported file format: '{source.suffix}'. "
+                "Only .docx and .doc files can be converted."
             )
 
     if sys.platform not in ("win32", "darwin"):
         raise EnvironmentError(
-            "Word → PDF dönüşümü yalnızca Microsoft Word kurulu Windows "
-            "ve macOS sistemlerinde desteklenir."
+            "Word to PDF conversion is supported only on Windows and macOS "
+            "systems with Microsoft Word installed."
         )
 
     try:
         import docx2pdf  # noqa: PLC0415
     except ImportError:
         raise ImportError(
-            "docx2pdf kütüphanesi bulunamadı. "
-            "Lütfen 'pip install docx2pdf' komutuyla yükleyin."
+            "The docx2pdf package is not installed. "
+            "Install it with 'pip install docx2pdf'."
         )
 
     output_folder = Path(output_dir)
@@ -121,13 +121,13 @@ def convert_word_to_pdf(
         for index, source in enumerate(sources):
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("İşlem iptal edildi.")
+                raise CancelledException("Operation cancelled.")
 
             output_path = _get_unique_output_path(output_folder, source)
 
             if status_callback:
                 status_callback(
-                    f"Dönüştürülüyor: {source.name}  ({index + 1}/{total})"
+                    f"Converting: {source.name}  ({index + 1}/{total})"
                 )
 
             try:
@@ -135,7 +135,7 @@ def convert_word_to_pdf(
                     docx2pdf.convert(str(source), str(temporary))
                     if cancel_check and cancel_check():
                         from core.worker import CancelledException
-                        raise CancelledException("İşlem iptal edildi.")
+                        raise CancelledException("Operation cancelled.")
             except Exception as exc:
                 from core.worker import CancelledException
                 if isinstance(exc, CancelledException):
@@ -150,6 +150,6 @@ def convert_word_to_pdf(
         raise
 
     if status_callback:
-        status_callback(f"Tamamlandı! {total} Word belgesi PDF'e dönüştürüldü.")
+        status_callback(f"Complete! {total} Word documents converted to PDF.")
 
     return str(output_folder)

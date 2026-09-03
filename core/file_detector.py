@@ -44,7 +44,7 @@ def expand_supported_paths(
     for path_str in paths:
         if cancel_check and cancel_check():
             from core.worker import CancelledException
-            raise CancelledException("Klasör taraması iptal edildi.")
+            raise CancelledException("Folder scan cancelled.")
 
         path = Path(path_str)
         if path.is_file():
@@ -64,7 +64,7 @@ def expand_supported_paths(
         ):
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("Klasör taraması iptal edildi.")
+                raise CancelledException("Folder scan cancelled.")
 
             directories.sort(key=str.casefold)
             for filename in sorted(filenames, key=str.casefold):
@@ -118,16 +118,16 @@ def get_type_label(file_type: str, count: int) -> str:
     Returns a localized display string describing the detected file type.
 
     Example:
-        get_type_label("image", 3) → "3 resim dosyası tespit edildi"
-        get_type_label("pdf",   1) → "1 PDF dosyası tespit edildi"
+        get_type_label("image", 3) → "3 image files detected"
+        get_type_label("pdf",   1) → "1 PDF file detected"
     """
     labels = {
-        'image':       ('resim', 'resim'),
-        'word':        ('Word belgesi', 'Word belgesi'),
-        'pdf':         ('PDF dosyası', 'PDF dosyası'),
-        'mixed':       ('karışık dosya', 'karışık dosya'),
-        'unsupported': ('desteklenmeyen dosya', 'desteklenmeyen dosya'),
+        'image':       ('image file', 'image files'),
+        'word':        ('Word document', 'Word documents'),
+        'pdf':         ('PDF file', 'PDF files'),
+        'mixed':       ('mixed file', 'mixed files'),
+        'unsupported': ('unsupported file', 'unsupported files'),
     }
-    singular, plural = labels.get(file_type, ('dosya', 'dosya'))
+    singular, plural = labels.get(file_type, ('file', 'files'))
     noun = singular if count == 1 else plural
-    return f"{count} {noun} tespit edildi"
+    return f"{count} {noun} detected"

@@ -1,5 +1,5 @@
 """
-core/pdf_merge.py — PDF Birleştirme Motoru
+core/pdf_merge.py — PDF Merge Engine
 
 Merges multiple PDF files into a single document using pypdf.
 Works on all platforms without external dependencies beyond the library itself.
@@ -37,19 +37,19 @@ def merge_pdfs(
         RuntimeError:     If a file is corrupt or output cannot be created.
     """
     if not input_paths:
-        raise ValueError("En az bir PDF dosyası seçmelisiniz.")
+        raise ValueError("Select at least one PDF file.")
 
     if len(input_paths) < 2:
-        raise ValueError("PDF birleştirmek için en az 2 dosya seçmelisiniz.")
+        raise ValueError("Select at least two PDF files to merge.")
 
     for path_str in input_paths:
         p = Path(path_str)
         if not p.exists():
-            raise FileNotFoundError(f"Dosya bulunamadı: {p.name}")
+            raise FileNotFoundError(f"File not found: {p.name}")
         if p.suffix.lower() != ".pdf":
             raise ValueError(
-                f"'{p.name}' bir PDF dosyası değil. "
-                "Yalnızca .pdf uzantılı dosyalar kabul edilir."
+                f"'{p.name}' is not a PDF file. "
+                "Only files with a .pdf extension are accepted."
             )
 
     try:
@@ -57,20 +57,20 @@ def merge_pdfs(
         from pypdf.errors import PdfReadError  # noqa: PLC0415
     except ImportError:
         raise ImportError(
-            "pypdf kütüphanesi bulunamadı. "
-            "Lütfen 'pip install pypdf' komutuyla yükleyin."
+            "The pypdf package is not installed. "
+            "Install it with 'pip install pypdf'."
         )
 
     output = Path(output_path)
     if output.suffix.lower() != ".pdf":
-        raise ValueError("Birleştirme çıktısı .pdf uzantılı olmalıdır.")
+        raise ValueError("The merged output must have a .pdf extension.")
 
     resolved_output = output.resolve()
     for path_str in input_paths:
         if Path(path_str).resolve() == resolved_output:
             raise ValueError(
-                "Çıktı dosyası kaynak PDF'lerden biriyle aynı olamaz. "
-                "Kaynak dosyaların korunması için farklı bir ad veya konum seçin."
+                "The output cannot be one of the source PDFs. "
+                "Choose a different name or location to protect the source files."
             )
 
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -79,7 +79,7 @@ def merge_pdfs(
     total = len(input_paths)
 
     if status_callback:
-        status_callback(f"Başlatılıyor... ({total} dosya)")
+        status_callback(f"Starting... ({total} files)")
     if progress_callback:
         progress_callback(5)
 
@@ -87,11 +87,11 @@ def merge_pdfs(
         for i, path_str in enumerate(input_paths):
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("İşlem iptal edildi.")
+                raise CancelledException("Operation cancelled.")
 
             p = Path(path_str)
             if status_callback:
-                status_callback(f"İşleniyor: {p.name}  ({i + 1}/{total})")
+                status_callback(f"Processing: {p.name}  ({i + 1}/{total})")
 
             try:
                 source_handle = source_files.enter_context(p.open("rb"))
@@ -99,36 +99,36 @@ def merge_pdfs(
 
                 if reader.is_encrypted:
                     raise PermissionError(
-                        f"'{p.name}' şifreli bir PDF dosyasıdır. "
-                        "Şifreli PDF'ler birleştirilemez. "
-                        "Lütfen önce şifreyi kaldırın."
+                        f"'{p.name}' is an encrypted PDF. "
+                        "Encrypted PDFs cannot be merged. "
+                        "Remove the password protection first."
                     )
 
                 for page in reader.pages:
                     writer.add_page(page)
             except PdfReadError as exc:
                 raise RuntimeError(
-                    f"'{p.name}' dosyası okunamadı. "
-                    f"Dosya bozuk veya geçerli bir PDF değil.\n\nTeknik detay: {exc}"
+                    f"'{p.name}' could not be read. "
+                    f"The file may be corrupt or invalid.\n\nTechnical details: {exc}"
                 ) from exc
             except PermissionError:
                 raise
             except Exception as exc:
                 raise RuntimeError(
-                    f"'{p.name}' işlenirken beklenmedik hata oluştu:\n{exc}"
+                    f"An unexpected error occurred while processing '{p.name}':\n{exc}"
                 ) from exc
 
             if progress_callback:
                 progress_callback(5 + int((i + 1) / total * 85))
 
         if status_callback:
-            status_callback("PDF kaydediliyor...")
+            status_callback("Saving PDF...")
         if progress_callback:
             progress_callback(92)
 
         if cancel_check and cancel_check():
             from core.worker import CancelledException
-            raise CancelledException("İşlem iptal edildi.")
+            raise CancelledException("Operation cancelled.")
 
         temporary_path: Path | None = None
         try:
@@ -144,19 +144,19 @@ def merge_pdfs(
 
             if temporary_path.stat().st_size == 0:
                 raise RuntimeError(
-                    "Birleştirme tamamlandı ancak geçici çıktı dosyası boş oluşturuldu."
+                    "The merge completed, but the temporary output file is empty."
                 )
             temporary_path.replace(output)
         except PermissionError as exc:
             raise PermissionError(
-                f"'{output.name}' dosyasına yazılamıyor. "
-                "Dosya başka bir program tarafından açık olabilir."
+                f"Cannot write to '{output.name}'. "
+                "The file may be open in another application."
             ) from exc
         except Exception as exc:
             if isinstance(exc, RuntimeError):
                 raise
             raise RuntimeError(
-                f"'{output.name}' kaydedilirken beklenmedik hata oluştu:\n{exc}"
+                f"An unexpected error occurred while saving '{output.name}':\n{exc}"
             ) from exc
         finally:
             if temporary_path and temporary_path.exists():
@@ -167,12 +167,12 @@ def merge_pdfs(
 
     if not output.exists() or output.stat().st_size == 0:
         raise RuntimeError(
-            "Birleştirme tamamlandı ancak çıktı dosyası oluşturulamadı."
+            "The merge completed, but the output file was not created."
         )
 
     if progress_callback:
         progress_callback(100)
     if status_callback:
-        status_callback(f"Tamamlandı! → {output.name}")
+        status_callback(f"Complete! → {output.name}")
 
     return str(output)

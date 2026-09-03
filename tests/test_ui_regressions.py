@@ -63,8 +63,8 @@ class UiRegressionTests(unittest.TestCase):
         rendered_text = dialog.setText.call_args.args[0]
         self.assertIn("AGPL-3.0-only", rendered_text)
         self.assertIn("github.com/samilkeklikoglu/File_Converter", rendered_text)
-        self.assertIn("hiçbir garanti", rendered_text)
-        self.assertEqual(panel.about_btn.text(), "Hakkında")
+        self.assertIn("without any warranty", rendered_text)
+        self.assertEqual(panel.about_btn.text(), "About")
         panel.close()
 
     def test_pdf_to_word_is_launched_as_non_cancellable(self):
@@ -114,7 +114,7 @@ class UiRegressionTests(unittest.TestCase):
             panel = SmartPanel()
             panel._set_files([str(path) for path in images])
             self.assertEqual(panel.action_stack.currentIndex(), 0)
-            self.assertEqual(panel.file_count_label.text(), "2 öğe")
+            self.assertEqual(panel.file_count_label.text(), "2 items")
 
             panel._set_files([str(pdfs[0])])
             self.assertEqual(panel.action_stack.currentIndex(), 2)

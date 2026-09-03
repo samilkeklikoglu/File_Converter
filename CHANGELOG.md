@@ -1,29 +1,29 @@
-# Değişiklik Geçmişi
+# Changelog
 
-Bu proje [Semantic Versioning](https://semver.org/) yaklaşımını izler.
+This project follows [Semantic Versioning](https://semver.org/).
 
 ## [2.0.0] - 2026-09-03
 
-### Eklendi
+### Added
 
-- Resim → PDF ve JPG/PNG/WEBP toplu format dönüşümü.
-- Word → PDF, PDF → Word ve PDF → PNG/JPG dönüşümleri.
-- PDF birleştirme, sayfa bazlı bölme ve özel sayfa aralıkları.
-- Sürükle-bırak, arka planda klasör tarama ve işlem ilerleme görünümü.
-- Profesyonel koyu tema, uygulama ikonu ve Windows kurulum paketi.
-- AGPLv3 açık kaynak lisansı, gizlilik bildirimi ve üçüncü taraf bildirimleri.
+- Image to PDF and batch JPG/PNG/WEBP format conversion.
+- Word to PDF, PDF to Word, and PDF to PNG/JPG conversion.
+- PDF merge, per-page splitting, and custom page ranges.
+- Drag and drop, background folder scanning, and operation progress views.
+- Professional dark theme, application icon, and Windows installer.
+- AGPLv3 open-source license, privacy notice, and third-party notices.
 
-### Güvenlik ve güvenilirlik
+### Security and reliability
 
-- Atomik çıktı yazımı ve başarısız/iptal edilen toplu işlem temizliği.
-- Dönüşüm kaynaklarının hata durumunda güvenli biçimde kapatılması.
-- Aktif işlem sırasında güvenli uygulama kapanışı.
-- Dosya doğrulama, çakışmayan çıktı adları ve EXIF yönü desteği.
+- Atomic output writes and cleanup for failed or cancelled batch operations.
+- Safe cleanup of conversion resources after errors.
+- Safe application shutdown during active operations.
+- File validation, collision-free output names, and EXIF orientation support.
 
-### Doğrulama
+### Validation
 
-- Birim ve UI regresyon testleri.
-- Gerçek Microsoft Word ile DOCX → PDF smoke testi.
-- Standalone EXE ve installer kurulum/çalıştırma/kaldırma testi.
+- Unit and UI regression tests.
+- Real Microsoft Word DOCX to PDF smoke test.
+- Standalone executable and installer install/start/uninstall smoke tests.
 
 [2.0.0]: https://github.com/samilkeklikoglu/File_Converter/releases/tag/v2.0.0

@@ -20,7 +20,7 @@ def _ensure_pyinstaller() -> None:
     try:
         import PyInstaller  # noqa: F401, PLC0415
     except ImportError:
-        print("[*] PyInstaller bulunamadı; build bağımlılıkları kuruluyor...")
+        print("[*] PyInstaller not found; installing build dependencies...")
         subprocess.check_call(
             [
                 sys.executable,
@@ -33,12 +33,12 @@ def _ensure_pyinstaller() -> None:
             cwd=PROJECT_ROOT,
         )
     else:
-        print("[+] PyInstaller hazır.")
+        print("[+] PyInstaller is ready.")
 
 
 def _clean_previous_builds() -> None:
     """Remove generated build directories within the project root."""
-    print("[*] Önceki build çıktıları temizleniyor...")
+    print("[*] Cleaning previous build outputs...")
     for directory in (BUILD_DIR, DIST_DIR):
         if directory.exists():
             shutil.rmtree(directory)
@@ -69,19 +69,19 @@ def build_app() -> Path:
         command.append(f"--icon={icon_path}")
         command.append(f"--add-data={icon_path}{os.pathsep}assets")
     else:
-        print("[!] assets/fileconverter.ico bulunamadı; varsayılan ikon kullanılacak.")
+        print("[!] assets/fileconverter.ico not found; using the default icon.")
 
     command.append(str(ENTRY_POINT))
-    print(f"[*] Çalıştırılıyor: {sys.executable} -m PyInstaller ...")
+    print(f"[*] Running: {sys.executable} -m PyInstaller ...")
     subprocess.check_call(command, cwd=PROJECT_ROOT)
 
     executable = DIST_DIR / f"{APP_NAME}.exe"
     if not executable.is_file() or executable.stat().st_size == 0:
-        raise RuntimeError("Build tamamlandı ancak FileConverter.exe oluşturulamadı.")
+        raise RuntimeError("The build completed, but FileConverter.exe was not created.")
 
     print("\n==============================================")
-    print("[+] BUILD BAŞARILI")
-    print(f"[+] Çıktı: {executable}")
+    print("[+] BUILD SUCCEEDED")
+    print(f"[+] Output: {executable}")
     print("==============================================")
     return executable
 
@@ -90,5 +90,5 @@ if __name__ == "__main__":
     try:
         build_app()
     except (OSError, subprocess.CalledProcessError, RuntimeError) as exc:
-        print(f"[-] Build başarısız: {exc}")
+        print(f"[-] Build failed: {exc}")
         raise SystemExit(1) from exc

@@ -39,7 +39,7 @@ def package_release(
     missing = [path for path in (executable, installer) if not path.is_file()]
     if missing:
         names = ", ".join(path.name for path in missing)
-        raise FileNotFoundError(f"Eksik yayın çıktısı: {names}")
+        raise FileNotFoundError(f"Missing release output: {names}")
 
     portable = dist_dir / f"{APP_NAME}-{APP_VERSION}-Portable.zip"
     with ZipFile(portable, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
@@ -47,7 +47,7 @@ def package_release(
         for name in LEGAL_FILES:
             source = project_root / name
             if not source.is_file():
-                raise FileNotFoundError(f"Eksik yayın belgesi: {name}")
+                raise FileNotFoundError(f"Missing release document: {name}")
             archive.write(source, arcname=name)
 
     checksum_file = dist_dir / "SHA256SUMS.txt"
@@ -62,5 +62,5 @@ def package_release(
 
 if __name__ == "__main__":
     portable_path, checksums_path = package_release()
-    print(f"[+] Portable paket: {portable_path}")
-    print(f"[+] Sağlama toplamları: {checksums_path}")
+    print(f"[+] Portable package: {portable_path}")
+    print(f"[+] Checksums: {checksums_path}")

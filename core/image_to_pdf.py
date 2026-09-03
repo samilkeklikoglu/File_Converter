@@ -1,5 +1,5 @@
 """
-core/image_to_pdf.py — Resim → PDF Dönüşüm Motoru
+core/image_to_pdf.py — Image to PDF Conversion Engine
 
 Converts one or more image files into a single PDF document using Pillow.
 Supports A4, Letter, and original-size page layouts.
@@ -16,7 +16,7 @@ from core.output_utils import atomic_output_path
 PAPER_SIZES_96DPI = {
     "A4":       (794, 1123),   # 210mm × 297mm @ 96 DPI
     "Letter":   (816, 1056),   # 8.5in × 11in @ 96 DPI
-    "Orijinal": None,          # Preserves the image's original dimensions
+    "Original": None,          # Preserves the image's original dimensions
 }
 
 
@@ -34,7 +34,7 @@ def convert_images_to_pdf(
     Args:
         image_paths:       Full paths to the image files to convert.
         output_path:       Full path for the resulting PDF file.
-        page_size:         One of "A4", "Letter", or "Orijinal".
+        page_size:         One of "A4", "Letter", or "Original".
         progress_callback: Called with an integer (0-100) to report progress.
         status_callback:   Called with a status string for UI feedback.
 
@@ -45,7 +45,7 @@ def convert_images_to_pdf(
         ValueError: If no image paths are provided.
     """
     if not image_paths:
-        raise ValueError("Dönüştürülecek resim dosyası seçilmedi.")
+        raise ValueError("No image files were selected for conversion.")
 
     total = len(image_paths)
     target_size = PAPER_SIZES_96DPI.get(page_size)
@@ -57,14 +57,14 @@ def convert_images_to_pdf(
         for i, path_str in enumerate(image_paths):
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("İşlem iptal edildi.")
+                raise CancelledException("Operation cancelled.")
 
             path = Path(path_str)
             if not path.is_file():
-                raise FileNotFoundError(f"Dosya bulunamadı: {path.name}")
+                raise FileNotFoundError(f"File not found: {path.name}")
 
             if status_callback:
-                status_callback(f"Yükleniyor: {path.name}  ({i + 1}/{total})")
+                status_callback(f"Loading: {path.name}  ({i + 1}/{total})")
 
             with Image.open(path) as source:
                 oriented = ImageOps.exif_transpose(source)
@@ -93,7 +93,7 @@ def convert_images_to_pdf(
                 progress_callback(int((i + 1) / total * 50))
 
         if status_callback:
-            status_callback("PDF oluşturuluyor...")
+            status_callback("Creating PDF...")
 
         with atomic_output_path(output) as temporary:
             processed_images[0].save(
@@ -105,12 +105,12 @@ def convert_images_to_pdf(
             )
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("İşlem iptal edildi.")
+                raise CancelledException("Operation cancelled.")
 
         if progress_callback:
             progress_callback(100)
         if status_callback:
-            status_callback(f"Tamamlandı! → {output.name}")
+            status_callback(f"Complete! → {output.name}")
     finally:
         for img in processed_images:
             img.close()

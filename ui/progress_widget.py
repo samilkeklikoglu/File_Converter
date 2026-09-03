@@ -69,7 +69,7 @@ class ProgressWidget(QWidget):
             qta.icon("fa5s.circle-notch", color="#65738d").pixmap(16, 16)
         )
 
-        self.status_label = QLabel("Hazır")
+        self.status_label = QLabel("Ready")
         self.status_label.setStyleSheet(
             "color: #a6b2c7; font-size: 12px; font-weight: 600;"
             "background: transparent; border: none;"
@@ -110,7 +110,7 @@ class ProgressWidget(QWidget):
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(10)
 
-        self.cancel_btn = QPushButton("İşlemi iptal et")
+        self.cancel_btn = QPushButton("Cancel operation")
         self.cancel_btn.setIcon(qta.icon("fa5s.stop-circle", color="#ef4444"))
         self.cancel_btn.setStyleSheet(
             "QPushButton { background-color: #25171d; color: #f59898; border: 1px solid #573037;"
@@ -120,13 +120,13 @@ class ProgressWidget(QWidget):
         self.cancel_btn.setVisible(False)
         self.cancel_btn.clicked.connect(self._on_cancel)
 
-        self.open_btn = QPushButton("Çıktıyı klasörde göster")
+        self.open_btn = QPushButton("Show output in folder")
         self.open_btn.setObjectName("successBtn")
         self.open_btn.setIcon(qta.icon("fa5s.folder-open", color="#ffffff"))
         self.open_btn.setEnabled(False)
         self.open_btn.clicked.connect(self._open_output_folder)
 
-        self.clear_btn = QPushButton("Yeni işlem")
+        self.clear_btn = QPushButton("New operation")
         self.clear_btn.setIcon(qta.icon("fa5s.redo", color="#a8b5cb"))
         self.clear_btn.setEnabled(False)
         self.clear_btn.clicked.connect(self._on_clear)
@@ -146,7 +146,7 @@ class ProgressWidget(QWidget):
         self.progress_value.setText("0%")
         self.output_label.clear()
         self.output_label.setVisible(False)
-        self.status_label.setText("Hazır")
+        self.status_label.setText("Ready")
         self.status_label.setStyleSheet(
             "color: #a6b2c7; font-size: 12px; font-weight: 600;"
             "background: transparent; border: none;"
@@ -172,7 +172,7 @@ class ProgressWidget(QWidget):
         self.clear_btn.setEnabled(False)
         self.cancel_btn.setEnabled(True)
         self.cancel_btn.setVisible(cancellable)
-        self.set_status("Başlatılıyor...", color="#7070c0",
+        self.set_status("Starting...", color="#7070c0",
                         icon_name="fa5s.circle-notch", icon_color="#6c63ff")
 
     def start_indeterminate(self, status: str, cancellable: bool = True):
@@ -213,9 +213,9 @@ class ProgressWidget(QWidget):
         self._output_path = output_path
         self.set_progress(100)
         output = Path(output_path)
-        self.output_label.setText(f"Çıktı: {output.name}")
+        self.output_label.setText(f"Output: {output.name}")
         self.output_label.setVisible(True)
-        self.set_status("Dönüşüm başarıyla tamamlandı", color="#63ddb9",
+        self.set_status("Conversion completed successfully", color="#63ddb9",
                         icon_name="fa5s.check-circle", icon_color="#48d6b0")
         self.cancel_btn.setVisible(False)
         self.open_btn.setVisible(True)
@@ -224,7 +224,7 @@ class ProgressWidget(QWidget):
 
     def set_error(self, message: str):
         """Marks the conversion as failed and displays the error message."""
-        self.set_status(f"Hata: {message}", color="#f87171",
+        self.set_status(f"Error: {message}", color="#f87171",
                         icon_name="fa5s.times-circle", icon_color="#f87171")
         self.set_progress(0)
         self.cancel_btn.setVisible(False)
@@ -232,7 +232,7 @@ class ProgressWidget(QWidget):
 
     def set_cancelled(self):
         """Marks the conversion as cancelled by the user."""
-        self.set_status("İşlem iptal edildi.", color="#c0a030",
+        self.set_status("Operation cancelled.", color="#c0a030",
                         icon_name="fa5s.ban", icon_color="#c0a030")
         self.set_progress(0)
         self.cancel_btn.setVisible(False)

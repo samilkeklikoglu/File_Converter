@@ -35,7 +35,7 @@ class PdfMergeTests(unittest.TestCase):
 
     def test_rejects_input_file_as_output(self):
         original = self.first.read_bytes()
-        with self.assertRaisesRegex(ValueError, "kaynak PDF"):
+        with self.assertRaisesRegex(ValueError, "source PDFs"):
             merge_pdfs([str(self.first), str(self.second)], str(self.first))
         self.assertEqual(self.first.read_bytes(), original)
 

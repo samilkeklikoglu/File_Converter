@@ -17,8 +17,8 @@ def _ensure_outputs_available(paths: list[Path]) -> None:
     existing = next((path for path in paths if path.exists()), None)
     if existing:
         raise FileExistsError(
-            f"'{existing.name}' zaten mevcut. Kaynak dosyaları korumak için "
-            "boş bir çıktı klasörü seçin."
+            f"'{existing.name}' already exists. Choose an empty output folder "
+            "to protect your source files."
         )
 
 
@@ -29,7 +29,7 @@ def _write_pdf_atomic(writer, output: Path, cancel_check) -> None:
             writer.write(handle)
         if cancel_check and cancel_check():
             from core.worker import CancelledException
-            raise CancelledException("İşlem iptal edildi.")
+            raise CancelledException("Operation cancelled.")
 
 
 def parse_page_ranges(range_str: str, total_pages: int) -> list[tuple[int, int]]:
@@ -65,39 +65,39 @@ def parse_page_ranges(range_str: str, total_pages: int) -> list[tuple[int, int]]
                 start = int(halves[0].strip())
                 end   = int(halves[1].strip())
             except ValueError:
-                raise ValueError(f"Geçersiz aralık: '{part}'")
+                raise ValueError(f"Invalid range: '{part}'")
 
             if start < 1 or end < 1:
-                raise ValueError(f"Sayfa numaraları 1'den küçük olamaz: '{part}'")
+                raise ValueError(f"Page numbers cannot be less than 1: '{part}'")
             if start > end:
-                raise ValueError(f"Başlangıç sayfa bitiş sayfasından büyük olamaz: '{part}'")
+                raise ValueError(f"The start page cannot be greater than the end page: '{part}'")
             if end > total_pages:
                 raise ValueError(
-                    f"Sayfa {end} mevcut değil. PDF toplam {total_pages} sayfadan oluşuyor."
+                    f"Page {end} does not exist. The PDF has {total_pages} pages."
                 )
             parsed_range = (start, end)
         else:
             try:
                 page = int(part)
             except ValueError:
-                raise ValueError(f"Geçersiz sayfa numarası: '{part}'")
+                raise ValueError(f"Invalid page number: '{part}'")
 
             if page < 1 or page > total_pages:
                 raise ValueError(
-                    f"Sayfa {page} mevcut değil. PDF toplam {total_pages} sayfadan oluşuyor."
+                    f"Page {page} does not exist. The PDF has {total_pages} pages."
                 )
             parsed_range = (page, page)
 
         if parsed_range in seen_ranges:
             start, end = parsed_range
             label = str(start) if start == end else f"{start}-{end}"
-            raise ValueError(f"Tekrarlanan sayfa aralığı: '{label}'")
+            raise ValueError(f"Duplicate page range: '{label}'")
 
         seen_ranges.add(parsed_range)
         ranges.append(parsed_range)
 
     if not ranges:
-        raise ValueError("En az bir sayfa aralığı girilmelidir.")
+        raise ValueError("Enter at least one page range.")
 
     return ranges
 
@@ -131,13 +131,13 @@ def split_pdf_by_pages(
         from pypdf import PdfWriter, PdfReader  # noqa: PLC0415
     except ImportError:
         raise ImportError(
-            "pypdf kütüphanesi bulunamadı. "
-            "Lütfen 'pip install pypdf' komutuyla yükleyin."
+            "The pypdf package is not installed. "
+            "Install it with 'pip install pypdf'."
         )
 
     source = Path(input_path)
     if not source.exists():
-        raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+        raise FileNotFoundError(f"File not found: {source.name}")
 
     output_folder = Path(output_dir)
     folder_existed = output_folder.exists()
@@ -150,13 +150,13 @@ def split_pdf_by_pages(
 
             if reader.is_encrypted:
                 raise RuntimeError(
-                    f"'{source.name}' şifreli bir PDF dosyasıdır. "
-                    "Şifreli PDF'ler işlenemez."
+                    f"'{source.name}' is an encrypted PDF. "
+                    "Encrypted PDFs cannot be processed."
                 )
 
             total = len(reader.pages)
             if total == 0:
-                raise RuntimeError("PDF dosyası boş veya okunamıyor.")
+                raise RuntimeError("The PDF is empty or cannot be read.")
 
             stem = source.stem
             pad = len(str(total))
@@ -167,14 +167,14 @@ def split_pdf_by_pages(
             _ensure_outputs_available(output_paths)
 
             if status_callback:
-                status_callback(f"Bölünüyor: {source.name}  ({total} sayfa)")
+                status_callback(f"Splitting: {source.name}  ({total} pages)")
             if progress_callback:
                 progress_callback(5)
 
             for i, page in enumerate(reader.pages):
                 if cancel_check and cancel_check():
                     from core.worker import CancelledException
-                    raise CancelledException("İşlem iptal edildi.")
+                    raise CancelledException("Operation cancelled.")
 
                 page_num = i + 1
                 out_path = output_paths[i]
@@ -184,14 +184,14 @@ def split_pdf_by_pages(
                 created_files.append(out_path)
 
                 if status_callback:
-                    status_callback(f"Kaydediliyor: {out_path.name}  ({page_num}/{total})")
+                    status_callback(f"Saving: {out_path.name}  ({page_num}/{total})")
                 if progress_callback:
                     progress_callback(5 + int(page_num / total * 90))
 
         if progress_callback:
             progress_callback(100)
         if status_callback:
-            status_callback(f"Tamamlandı! {total} sayfa ayrı PDF olarak kaydedildi.")
+            status_callback(f"Complete! {total} pages saved as separate PDFs.")
     except Exception:
         cleanup_created_files(created_files)
         if not folder_existed:
@@ -236,13 +236,13 @@ def split_pdf_by_ranges(
         from pypdf import PdfWriter, PdfReader  # noqa: PLC0415
     except ImportError:
         raise ImportError(
-            "pypdf kütüphanesi bulunamadı. "
-            "Lütfen 'pip install pypdf' komutuyla yükleyin."
+            "The pypdf package is not installed. "
+            "Install it with 'pip install pypdf'."
         )
 
     source = Path(input_path)
     if not source.exists():
-        raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+        raise FileNotFoundError(f"File not found: {source.name}")
 
     output_folder = Path(output_dir)
     folder_existed = output_folder.exists()
@@ -255,13 +255,13 @@ def split_pdf_by_ranges(
 
             if reader.is_encrypted:
                 raise RuntimeError(
-                    f"'{source.name}' şifreli bir PDF dosyasıdır. "
-                    "Şifreli PDF'ler işlenemez."
+                    f"'{source.name}' is an encrypted PDF. "
+                    "Encrypted PDFs cannot be processed."
                 )
 
             total_pages = len(reader.pages)
             if total_pages == 0:
-                raise RuntimeError("PDF dosyası boş veya okunamıyor.")
+                raise RuntimeError("The PDF is empty or cannot be read.")
 
             ranges = parse_page_ranges(range_str, total_pages)
             output_paths = [
@@ -271,14 +271,14 @@ def split_pdf_by_ranges(
             _ensure_outputs_available(output_paths)
 
             if status_callback:
-                status_callback(f"Bölünüyor: {source.name}  ({len(ranges)} bölüm)")
+                status_callback(f"Splitting: {source.name}  ({len(ranges)} sections)")
             if progress_callback:
                 progress_callback(5)
 
             for idx, (start, end) in enumerate(ranges):
                 if cancel_check and cancel_check():
                     from core.worker import CancelledException
-                    raise CancelledException("İşlem iptal edildi.")
+                    raise CancelledException("Operation cancelled.")
 
                 writer = PdfWriter()
                 for page_num in range(start - 1, end):
@@ -289,14 +289,14 @@ def split_pdf_by_ranges(
                 created_files.append(out_path)
 
                 if status_callback:
-                    status_callback(f"Kaydediliyor: {out_path.name}")
+                    status_callback(f"Saving: {out_path.name}")
                 if progress_callback:
                     progress_callback(5 + int((idx + 1) / len(ranges) * 90))
 
         if progress_callback:
             progress_callback(100)
         if status_callback:
-            status_callback(f"Tamamlandı! {len(ranges)} bölüm kaydedildi.")
+            status_callback(f"Complete! {len(ranges)} sections saved.")
     except Exception:
         cleanup_created_files(created_files)
         if not folder_existed:

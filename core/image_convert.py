@@ -56,13 +56,13 @@ def convert_images(
     from PIL import Image, ImageOps  # noqa: PLC0415
 
     if not image_paths:
-        raise ValueError("Dönüştürülecek resim dosyası seçilmedi.")
+        raise ValueError("No image files were selected for conversion.")
 
     fmt_key = output_format.upper()
     if fmt_key not in SUPPORTED_OUTPUT_FORMATS:
         raise ValueError(
-            f"Desteklenmeyen format: '{output_format}'. "
-            f"Kabul edilenler: {', '.join(SUPPORTED_OUTPUT_FORMATS)}"
+            f"Unsupported format: '{output_format}'. "
+            f"Accepted formats: {', '.join(SUPPORTED_OUTPUT_FORMATS)}"
         )
 
     pil_format = SUPPORTED_OUTPUT_FORMATS[fmt_key]
@@ -71,7 +71,7 @@ def convert_images(
     sources = [Path(path) for path in image_paths]
     for source in sources:
         if not source.is_file():
-            raise FileNotFoundError(f"Dosya bulunamadı: {source.name}")
+            raise FileNotFoundError(f"File not found: {source.name}")
 
     output_folder = Path(output_dir)
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -82,10 +82,10 @@ def convert_images(
         for i, src in enumerate(sources):
             if cancel_check and cancel_check():
                 from core.worker import CancelledException
-                raise CancelledException("İşlem iptal edildi.")
+                raise CancelledException("Operation cancelled.")
 
             if status_callback:
-                status_callback(f"Dönüştürülüyor: {src.name}  ({i + 1}/{total})")
+                status_callback(f"Converting: {src.name}  ({i + 1}/{total})")
 
             out_stem = src.stem
             out_path = output_folder / f"{out_stem}{out_ext}"
@@ -122,7 +122,7 @@ def convert_images(
                         converted.save(temporary, **save_kwargs)
                         if cancel_check and cancel_check():
                             from core.worker import CancelledException
-                            raise CancelledException("İşlem iptal edildi.")
+                            raise CancelledException("Operation cancelled.")
                 finally:
                     if converted is not None:
                         converted.close()
@@ -137,6 +137,6 @@ def convert_images(
         raise
 
     if status_callback:
-        status_callback(f"Tamamlandı! {total} dosya {fmt_key} formatına dönüştürüldü.")
+        status_callback(f"Complete! {total} files converted to {fmt_key}.")
 
     return str(output_folder)

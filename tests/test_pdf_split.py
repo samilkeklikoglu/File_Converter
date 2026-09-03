@@ -22,7 +22,7 @@ class ParsePageRangesTests(unittest.TestCase):
     def test_rejects_equivalent_duplicate_ranges(self):
         for value in ("1, 1", "1, 1-1", "1-3, 1-3"):
             with self.subTest(value=value):
-                with self.assertRaisesRegex(ValueError, "Tekrarlanan"):
+                with self.assertRaisesRegex(ValueError, "Duplicate"):
                     parse_page_ranges(value, 5)
 
 
