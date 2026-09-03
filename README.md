@@ -83,9 +83,43 @@ conversion through Microsoft Word, and full installer install/start/uninstall sm
 
 ## Download
 
-For Windows users, the recommended package is `FileConverter-2.0.0-Setup.exe` on the
+Download the latest version from the
 [GitHub Releases page](https://github.com/samilkeklikoglu/File_Converter/releases).
-A portable ZIP is also provided for installation-free use.
+
+### Install on Windows
+
+1. Open the latest release and download `FileConverter-2.0.0-Setup.exe`.
+2. Double-click the downloaded installer.
+3. Read and accept the GNU AGPLv3 license agreement.
+4. Choose the installation folder. The default location is recommended.
+5. Optionally enable the desktop shortcut, then select **Install**.
+6. Select **Finish** to launch FileConverter.
+
+The application is currently unsigned. Windows may display a Microsoft Defender
+SmartScreen message on first launch. If you downloaded the installer from this
+repository's official Releases page, select **More info**, verify that the app name is
+`FileConverter-2.0.0-Setup.exe`, and then select **Run anyway**. Do not bypass the
+warning for copies downloaded from another source.
+
+FileConverter installs only for the current Windows user and does not require
+administrator access. To uninstall it, open **Settings → Apps → Installed apps**, find
+**FileConverter**, and select **Uninstall**.
+
+### Use the portable version
+
+1. Download `FileConverter-2.0.0-Portable.zip` from the same release.
+2. Extract the ZIP to a folder you control.
+3. Open the extracted folder and run `FileConverter.exe`.
+
+The portable package does not create Start menu entries or an uninstaller. Delete its
+folder when you no longer need it.
+
+For integrity verification, download `SHA256SUMS.txt` and compare the listed SHA-256
+value with the hash of your downloaded installer or portable ZIP:
+
+```powershell
+Get-FileHash .\FileConverter-2.0.0-Setup.exe -Algorithm SHA256
+```
 
 ## Privacy and licensing
 
